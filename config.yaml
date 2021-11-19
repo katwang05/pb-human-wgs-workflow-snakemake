@@ -57,3 +57,6 @@ hpo:
   terms: 'resources/hpo/hpoTerms.txt'
   dag: 'resources/hpo/hpoDag.txt'
   annotations: 'resources/hpo/ensembl.hpoPhenotype.tsv'
+
+# igv sessions
+webroot: '100humansfs'

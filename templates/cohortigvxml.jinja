@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Session genome="{{'hg38' if reference == 'GRCh38' else 'hg19' if reference == 'hs37d5' else reference}}" hasGeneTrack="true" hasSequenceTrack="true" locus="chr6:43169270-43183506" version="8">
+    <Resources>
+        {% if samples|length > 1 %}
+        <Resource path="http://{{webroot}}/cohorts/{{cohort}}/whatshap/{{cohort}}.{{reference}}.deepvariant.glnexus.phased.vcf.gz"/>
+        <Resource path="http://{{webroot}}/cohorts/{{cohort}}/pbsv/{{cohort}}.{{reference}}.pbsv.vcf.gz"/>
+        {% else %}
+        <Resource path="http://{{webroot}}/samples/{{sample[0]}}/whatshap/{{sample[0]}}.{{reference}}.deepvariant.phased.vcf.gz"/>
+        <Resource path="http://{{webroot}}/samples/{{sample[0]}}/pbsv/{{sample[0]}}.{{reference}}.pbsv.vcf.gz"/>
+        {% endif %}
+        <Resource path="http://{{webroot}}/cohorts/{{cohort}}/slivar/{{cohort}}.{{reference}}.deepvariant.phased.slivar.vcf.gz"/>
+        <Resource path="http://{{webroot}}/cohorts/{{cohort}}/svpack/{{cohort}}.{{reference}}.pbsv.svpack.vcf.gz"/>
+        {% for sample in samples %}
+        <Resource path="http://{{webroot}}/samples/{{sample}}/whatshap/{{sample}}.{{reference}}.deepvariant.haplotagged.bam"/>
+        <Resource path="http://{{webroot}}/samples/{{sample}}/hifiasm/{{sample}}.asm.{{reference}}.bam"/>
+        {% endfor %}
+        <Resource index="http://{{webroot}}/{{segdups}}.tbi" path="http://{{webroot}}/{{segdups}}"/>
+        <Resource index="http://{{webroot}}/{{oddregions}}.tbi" path="http://{{webroot}}/{{oddregions}}"/>
+        <Resource index="http://{{webroot}}/{{repeats}}.tbi" path="http://{{webroot}}/{{repeats}}"/>
+    </Resources>
+
+    <Panel height="195" name="DataPanel" width="1237">
+        {% if cohort.samples|length > 1 %}
+        <Track attributeKey="{{cohort}}.{{reference}}.deepvariant.glnexus.phased.vcf.gz" clazz="org.broad.igv.variant.VariantTrack" color="0,0,178" displayMode="COLLAPSED" featureVisibilityWindow="25000" fontSize="10" id="http://{{webroot}}/cohorts/{{cohort}}/whatshap/{{cohort}}.{{reference}}.deepvariant.glnexus.phased.vcf.gz" name="{{cohort}} DV" siteColorMode="ALLELE_FREQUENCY" squishedHeight="1" visible="true"/>
+        <Track attributeKey="{{cohort}}.{{reference}}.pbsv.vcf.gz" clazz="org.broad.igv.variant.VariantTrack" color="0,0,178" displayMode="EXPANDED" featureVisibilityWindow="2500000" fontSize="10" id="http://{{webroot}}/cohorts/{{cohort}}/pbsv/{{cohort}}.{{reference}}.pbsv.vcf.gz" name="{{cohort}} pbsv" siteColorMode="ALLELE_FREQUENCY" squishedHeight="1" visible="true"/>
+        {% else %}
+        <Track attributeKey="{{sample[0]}}.{{reference}}.deepvariant.phased.vcf.gz" clazz="org.broad.igv.variant.VariantTrack" color="0,0,178" displayMode="COLLAPSED" featureVisibilityWindow="25000" fontSize="10" id="http://{{webroot}}/samples/{{sample[0]}}/whatshap/{{sample[0]}}.{{reference}}.deepvariant.phased.vcf.gz" name="{{cohort}} DV" siteColorMode="ALLELE_FREQUENCY" squishedHeight="1" visible="true"/>
+        <Track attributeKey="{{sample[0]}}.{{reference}}.pbsv.vcf.gz" clazz="org.broad.igv.variant.VariantTrack" color="0,0,178" displayMode="EXPANDED" featureVisibilityWindow="250000" fontSize="10" id="http://{{webroot}}/samples/{{sample[0]}}/pbsv/{{sample[0]}}.{{reference}}.pbsv.vcf.gz" name="{{cohort}} pbsv" siteColorMode="ALLELE_FREQUENCY" squishedHeight="1" visible="true"/>
+        {% endif %}
+        <Track attributeKey="{{cohort}}.{{reference}}.deepvariant.phased.slivar.vcf.gz" clazz="org.broad.igv.variant.VariantTrack" color="0,0,178" displayMode="EXPANDED" featureVisibilityWindow="2500000" fontSize="10" id="http://{{webroot}}/cohorts/{{cohort}}/slivar/{{cohort}}.{{reference}}.deepvariant.phased.slivar.vcf.gz" name="{{cohort}} DV, rare" siteColorMode="ALLELE_FREQUENCY" squishedHeight="1" visible="true"/>
+        <Track attributeKey="{{cohort}}.{{reference}}.pbsv.vcf.gz" clazz="org.broad.igv.variant.VariantTrack" color="0,0,178" displayMode="EXPANDED" featureVisibilityWindow="2500000" fontSize="10" id="http://{{webroot}}/cohorts/{{cohort}}/svpack/{{cohort}}.{{reference}}.pbsv.svpack.vcf.gz" name="{{cohort}} pbsv, rare" siteColorMode="ALLELE_FREQUENCY" squishedHeight="1" visible="true"/>
+    </Panel>
+
+    <Panel height="230" name="Panel_read_coverage" width="1237">
+        {% for sample in samples %}
+        <Track attributeKey="{{sample}}.{{reference}}.deepvariant.haplotagged.bam Coverage" autoScale="true" clazz="org.broad.igv.sam.CoverageTrack" color="175,175,175" colorScale="ContinuousColorScale;0.0;34.0;255,255,255;175,175,175" fontSize="10" id="http://{{webroot}}/samples/{{sample}}/whatshap/{{sample}}.{{reference}}.deepvariant.haplotagged.bam_coverage" name="{{sample}}" snpThreshold="0.2" visible="true" height="20">
+            <DataRange baseline="0.0" drawBaseline="true" flipAxis="false" maximum="16.0" minimum="0.0" type="LINEAR"/>
+        </Track>
+        {% endfor %}
+    </Panel>
+
+    {% for sample in samples %}
+    <Panel height="230" name="Panel_reads_{{sample}}" width="1237">
+        <Track attributeKey="{{sample}}.{{reference}}.deepvariant.haplotagged.bam" clazz="org.broad.igv.sam.AlignmentTrack" experimentType="THIRD_GEN" fontSize="10" id="http://{{webroot}}/samples/{{sample}}/whatshap/{{sample}}.{{reference}}.deepvariant.haplotagged.bam" name="{{sample}}" visible="true" displayMode="COLLAPSED">
+            <RenderOptions colorByTag="HP" colorOption="NONE" groupByOption="TAG" groupByTag="HP"/>
+        </Track>
+    </Panel>
+    {% endfor %}
+
+    <Panel height="230" name="Panel_asm" width="1237">
+        {% for sample in cohort.samples %}
+        <Track attributeKey="{{sample}}.asm.{{reference}}.bam" clazz="org.broad.igv.sam.AlignmentTrack" experimentType="THIRD_GEN" fontSize="10" id="http://{{webroot}}/samples/{{sample}}/hifiasm/{{sample}}.asm.{{reference}}.bam" name="{{sample}} asm" visible="true" displayMode="COLLAPSED" height="40">
+            <RenderOptions colorByTag="TG" colorOption="NONE" groupByOption="NONE" groupByTag="TG"/>
+        </Track>
+        {% endfor %}
+    </Panel>
+
+    <Panel height="174" name="FeaturePanel" width="1237">
+        <Track altColor="0,0,178" attributeKey="Reference sequence" clazz="org.broad.igv.track.SequenceTrack" color="0,0,178" fontSize="10" id="Reference sequence" name="Reference sequence" visible="true"/>
+        <Track altColor="0,0,178" attributeKey="Gene" clazz="org.broad.igv.track.FeatureTrack" color="0,0,178" colorScale="ContinuousColorScale;0.0;402.0;255,255,255;0,0,178" fontSize="10" height="35" id="{{'hg38' if reference == 'GRCh38' else 'hg19' if reference == 'hs37d5' else reference}}_genes" name="Gene" visible="true"/>
+        <Track altColor="0,0,178" attributeKey="Segdups" clazz="org.broad.igv.track.FeatureTrack" color="255,153,0" featureVisibilityWindow="0" fontSize="10" id="http://{{webroot}}/{{segdups}}" name="Segdups" visible="true"/>
+        <Track altColor="0,0,178" attributeKey="Repeats" clazz="org.broad.igv.track.FeatureTrack" color="0,0,0" displayMode="SQUISHED" featureVisibilityWindow="2500000" fontSize="10" id="http://{{webroot}}/{{repeats}}" name="Repeats" visible="true"/>
+        <Track altColor="0,0,178" attributeKey="Odd Regions" clazz="org.broad.igv.track.FeatureTrack" color="255,0,0" displayMode="SQUISHED" featureVisibilityWindow="0" fontSize="10" id="http://{{webroot}}/{{oddregions}}" name="Odd Regions" visible="true"/>
+    </Panel>
+    <HiddenAttributes>
+        <Attribute name="DATA FILE"/>
+        <Attribute name="DATA TYPE"/>
+        <Attribute name="NAME"/>
+    </HiddenAttributes>
+</Session>

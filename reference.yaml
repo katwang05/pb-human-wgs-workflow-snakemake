@@ -19,6 +19,9 @@ ref:
   gnomadsv_vcf: 'resources/gnomadsv/nstd166.GRCh38.variant_call.vcf.gz'
   hprc_pbsv_vcf: 'resources/hprc/hprc.GRCh38.pbsv.v.2.6.0-20210417.vcf.gz'
   decode_vcf: 'resources/decode/ont_sv_high_confidence_SVs.sorted.vcf.gz'
+  segdups: 'reference/annotation/GRCh38.segdups.bed.gz'
+  oddregions: 'reference/annotation/GRCh38.oddRegions.bed.gz'
+  repeats: 'reference/annotation/GRCh38.repeats.bed.gz'
   autosomes: ['chr1', 'chr2', 'chr3', 'chr4', 'chr5',
               'chr6', 'chr7', 'chr8', 'chr9', 'chr10',
               'chr11', 'chr12', 'chr13', 'chr14', 'chr15',
