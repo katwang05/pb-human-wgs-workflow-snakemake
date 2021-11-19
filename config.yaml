@@ -19,6 +19,7 @@ cohort_targets:
   - svpack  # req: pbsv_svsig, pbsv_vcf in config['sample_targets']
   - deepvariant_vcf  # req: deepvariant, whatshap in config['sample_targets']
   - slivar  # req: deepvariant, whatshap in config['sample_targets']
+  - igv  # req: deepvariant, whatshap, assembly, slivar, svpack
 
 # temporary storage
 tmpdir: '/tmp'

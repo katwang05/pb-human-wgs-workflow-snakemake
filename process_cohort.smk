@@ -97,6 +97,11 @@ if 'slivar' in config['cohort_targets']:
                     for infix in ['slivar', 'slivar.compound-hets']
                     for suffix in ['vcf.gz', 'vcf.gz.tbi', 'tsv']])
 
+# generate igv session
+include: 'rules/cohort_igv.smk'
+if 'igv' in config['cohort_targets']:
+    targets.extend([f"cohorts/{cohort}/{cohort}.{ref}.igv.xml"])
+
 
 ruleorder: split_glnexus_vcf > whatshap_phase > whatshap_bcftools_concat > bcftools_bcf2vcf > bgzip_vcf
 localrules: all, md5sum
