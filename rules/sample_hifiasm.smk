@@ -30,7 +30,13 @@ rule hifiasm_assemble:
         f"samples/{sample}/hifiasm/{sample}.asm.bp.hap1.p_ctg.noseq.gfa",
         temp(f"samples/{sample}/hifiasm/{sample}.asm.bp.hap2.p_ctg.gfa"),
         f"samples/{sample}/hifiasm/{sample}.asm.bp.hap2.p_ctg.lowQ.bed",
-        f"samples/{sample}/hifiasm/{sample}.asm.bp.hap2.p_ctg.noseq.gfa"
+        f"samples/{sample}/hifiasm/{sample}.asm.bp.hap2.p_ctg.noseq.gfa",
+        temp(f"samples/{sample}/hifiasm/{sample}.asm.bp.p_ctg.gfa"),
+        temp(f"samples/{sample}/hifiasm/{sample}.asm.bp.p_utg.gfa"),
+        temp(f"samples/{sample}/hifiasm/{sample}.asm.bp.r_utg.gfa"),
+        temp(f"samples/{sample}/hifiasm/{sample}.asm.ec.bin"),
+        temp(f"samples/{sample}/hifiasm/{sample}.asm.ovlp.reverse.bin"),
+        temp(f"samples/{sample}/hifiasm/{sample}.asm.ovlp.source.bin")
     log: f"samples/{sample}/logs/hifiasm.log"
     benchmark: f"samples/{sample}/benchmarks/hifiasm.tsv"
     conda: "envs/hifiasm.yaml"

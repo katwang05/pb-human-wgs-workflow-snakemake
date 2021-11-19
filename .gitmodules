@@ -3,4 +3,4 @@
 	url = https://github.com/lh3/calN50.git
 [submodule "scripts/svpack"]
 	path = scripts/svpack
-	url = https://github.com/amwenger/svpack.git
+	url = https://github.com/PacificBiosciences/svpack.git
