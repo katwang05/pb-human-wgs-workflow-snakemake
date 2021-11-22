@@ -47,10 +47,10 @@ slivar_js: 'resources/slivar/slivar-functions.js'
 # gq -> genotype quality as output by DeepVariant or GLnexus
 max_gnomad_af: 0.01  # for all variants
 max_hprc_af: 0.01  # for all variants
-max_gnomad_nhomalt: 5  # for all variants
-max_hprc_nhomalt: 5  # for all variants
-max_gnomad_ac: 5  # for 'dominant' variants
-max_hprc_ac: 5  # for 'dominant' variants
+max_gnomad_nhomalt: 4  # for all variants
+max_hprc_nhomalt: 4  # for all variants
+max_gnomad_ac: 4  # for 'dominant' variants
+max_hprc_ac: 4  # for 'dominant' variants
 min_gq: 5
 
 # lookups for slivar tsv annotations
