@@ -51,21 +51,39 @@ rule bcftools_norm:
 if singleton:
     # singleton
     slivar_filters = [
-        "--info 'variant.FILTER==\"PASS\" && INFO.gnomad_af < 0.01 && INFO.hprc_af < 0.01 && INFO.gnomad_nhomalt < 5 && INFO.hprc_nhomalt < 5'",
+        f"""--info 'variant.FILTER==\"PASS\" \
+                && INFO.gnomad_af <= {config['max_gnomad_af']} \
+                && INFO.hprc_af <= {config['max_hprc_af']} \
+                && INFO.gnomad_nhomalt <= {config['max_gnomad_nhomalt']} \
+                && INFO.hprc_nhomalt <= {config['max_hprc_nhomalt']}'""",
         "--family-expr 'recessive:fam.every(segregating_recessive)'",
         "--family-expr 'x_recessive:(variant.CHROM == \"chrX\") && fam.every(segregating_recessive_x)'",
-        "--family-expr 'dominant:fam.every(segregating_dominant) && INFO.gnomad_ac < 5 && INFO.hprc_ac < 5'",
-        "--family-expr 'x_dominant:(variant.CHROM == \"chrX\") && fam.every(segregating_dominant_x) && INFO.gnomad_ac < 5 && INFO.hprc_ac < 5'",
-        "--sample-expr 'comphet_side:sample.het && sample.GQ > 5'"
+        f"""--family-expr 'dominant:fam.every(segregating_dominant) \
+                       && INFO.gnomad_ac <= {config['max_gnomad_ac']} \
+                       && INFO.hprc_ac <= {config['max_hprc_ac']}'""",
+        f"""--family-expr 'x_dominant:(variant.CHROM == \"chrX\") \
+                       && fam.every(segregating_dominant_x) \
+                       && INFO.gnomad_ac <= {config['max_gnomad_ac']} \
+                       && INFO.hprc_ac <= {config['max_hprc_ac']}'""",
+        f"--sample-expr 'comphet_side:sample.het && sample.GQ > {config['min_gq']}'"
         ]
 else:
     # trio cohort
     slivar_filters = [
-        "--info 'variant.FILTER==\"PASS\" && INFO.gnomad_af < 0.01 && INFO.hprc_af < 0.01 && INFO.gnomad_nhomalt < 5 && INFO.hprc_nhomalt < 5'",
+        f"""--info 'variant.FILTER==\"PASS\" \
+                && INFO.gnomad_af <= {config['max_gnomad_af']} \
+                && INFO.hprc_af <= {config['max_hprc_af']} \
+                && INFO.gnomad_nhomalt <= {config['max_gnomad_nhomalt']} \
+                && INFO.hprc_nhomalt <= {config['max_hprc_nhomalt']}'""",
         "--family-expr 'recessive:fam.every(segregating_recessive)'",
         "--family-expr 'x_recessive:(variant.CHROM == \"chrX\") && fam.every(segregating_recessive_x)'",
-        "--family-expr 'dominant:fam.every(segregating_dominant) && INFO.gnomad_ac < 5 && INFO.hprc_ac < 5'",
-        "--family-expr 'x_dominant:(variant.CHROM == \"chrX\") && fam.every(segregating_dominant_x) && INFO.gnomad_ac < 5 && INFO.hprc_ac < 5'",
+        f"""--family-expr 'dominant:fam.every(segregating_dominant) \
+                       && INFO.gnomad_ac <= {config['max_gnomad_ac']} \
+                       && INFO.hprc_ac <= {config['max_hprc_ac']}'""",
+        f"""--family-expr 'x_dominant:(variant.CHROM == \"chrX\") \
+                       && fam.every(segregating_dominant_x) \
+                       && INFO.gnomad_ac <= {config['max_gnomad_ac']} \
+                       && INFO.hprc_ac <= {config['max_hprc_ac']}'""",
         "--trio 'comphet_side:comphet_side(kid, mom, dad) && kid.affected'"
     ]
 

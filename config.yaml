@@ -39,6 +39,19 @@ score_matrix: 'resources/tandem-genotypes/score_matrix.par'
 
 # slivar
 slivar_js: 'resources/slivar/slivar-functions.js'
+# slivar filters
+# gnomad -> frequency in gnomAD v3
+# hprc -> frequency in 40 HPRC samples sequenced with HiFi
+# af -> allele frequency
+# nhomalt -> number of samples with homalt genotype
+# gq -> genotype quality as output by DeepVariant or GLnexus
+max_gnomad_af: 0.01  # for all variants
+max_hprc_af: 0.01  # for all variants
+max_gnomad_nhomalt: 4  # for all variants
+max_hprc_nhomalt: 4  # for all variants
+max_gnomad_ac: 4  # for 'dominant' variants
+max_hprc_ac: 4  # for 'dominant' variants
+min_gq: 5
 
 # lookups for slivar tsv annotations
 lof_lookup_url: 'https://storage.googleapis.com/gnomad-public/release/2.1.1/constraint/gnomad.v2.1.1.lof_metrics.by_gene.txt.bgz'
