@@ -12,3 +12,16 @@ bcftools_bcf2vcf:
   cpus: 4
 bgzip_vcf:
   cpus: 2
+samtools_fasta:
+  cpus: 4
+yak_count:
+  cpus: 32
+hifiasm_assemble:
+  cpus: 48
+bgzip_fasta:
+  cpus: 4
+align_hifiasm:
+  cpus: 16
+samtools_index_bam:
+  cpus: 4
+  
