@@ -73,20 +73,18 @@ ubam_pattern = re.compile(r'smrtcells/ready/(?P<sample>[A-Za-z0-9_-]+)/(?P<movie
 ubam_dict = defaultdict(dict)
 fastq_pattern = re.compile(r'smrtcells/ready/(?P<sample>[A-Za-z0-9_-]+)/(?P<movie>m\d{5}[Ue]?_\d{6}_\d{6}).fastq.gz')
 fastq_dict = defaultdict(dict)
-ubam_fastq_dict = defaultdict(dict)
 for infile in Path('smrtcells/ready').glob('**/*.bam'):
     ubam_match = ubam_pattern.search(str(infile))
     if ubam_match:
         # create a dict-of-dict to link samples to movie context to uBAM filenames
         ubam_dict[ubam_match.group('sample')][ubam_match.group('movie')] = str(infile)
-        ubam_fastq_dict[ubam_match.group('sample')][ubam_match.group('movie')] = str(infile)
 for infile in Path('smrtcells/ready').glob('**/*.fastq.gz'):
     fastq_match = fastq_pattern.search(str(infile))
     if fastq_match:
         # create a dict-of-dict to link samples to movie context to FASTQ filenames
         fastq_dict[fastq_match.group('sample')][fastq_match.group('movie')] = str(infile)
-        ubam_fastq_dict[fastq_match.group('sample')][fastq_match.group('movie')] = str(infile)
-
+# get list of unique movie names for each sample, ignoring redundancy between ubam and fastq
+ubam_fastq_dict = {sample:list(set(list(ubam_dict[sample].keys()) + list(fastq_dict[sample].keys()))) for sample in list(ubam_dict.keys()) + list(fastq_dict.keys())}
 
 # scan samples/*/aligned to generate a dict-of-lists-of-movies for 
 pattern = re.compile(r'samples/(?P<sample>[A-Za-z0-9_-]+)/aligned/(?P<movie>m\d{5}[Ue]?_\d{6}_\d{6})\.(?P<reference>.*).bam')

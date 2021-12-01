@@ -23,7 +23,7 @@ rule seqtk_fastq_to_fasta:
 
 
 rule yak_count:
-    input: lambda wildcards: expand(f"cohorts/{cohort}/fasta/{wildcards.sample}/{{movie}}.fasta", movie=ubam_fastq_dict[wildcards.sample].keys())
+    input: lambda wildcards: expand(f"cohorts/{cohort}/fasta/{wildcards.sample}/{{movie}}.fasta", movie=ubam_fastq_dict[wildcards.sample])
     output: temp(f"cohorts/{cohort}/yak/{{sample}}.yak")
     log: f"cohorts/{cohort}/logs/yak/{{sample}}.yak.log"
     benchmark: f"cohorts/{cohort}/benchmarks/yak/{{sample}}.yak.tsv"
@@ -36,7 +36,7 @@ rule yak_count:
 
 rule hifiasm_assemble:
     input: 
-        fasta = lambda wildcards: expand(f"cohorts/{cohort}/fasta/{wildcards.sample}/{{movie}}.fasta", movie=ubam_fastq_dict[wildcards.sample].keys()),
+        fasta = lambda wildcards: expand(f"cohorts/{cohort}/fasta/{wildcards.sample}/{{movie}}.fasta", movie=ubam_fastq_dict[wildcards.sample]),
         parent1_yak = lambda wildcards: f"cohorts/{cohort}/yak/{trio_dict[wildcards.sample]['parent1']}.yak",
         parent2_yak = lambda wildcards: f"cohorts/{cohort}/yak/{trio_dict[wildcards.sample]['parent2']}.yak"
     output:
@@ -58,11 +58,21 @@ rule hifiasm_assemble:
     log: f"cohorts/{cohort}/logs/hifiasm/{{sample}}.hifiasm.log"
     benchmark: f"cohorts/{cohort}/benchmarks/hifiasm/{{sample}}.hifiasm.tsv"
     conda: "envs/hifiasm.yaml"
-    params: prefix = f"cohorts/{cohort}/hifiasm/{{sample}}.asm"
+    params: 
+        prefix = f"cohorts/{cohort}/hifiasm/{{sample}}.asm",
+        parent1 = lambda wildcards: trio_dict[wildcards.sample]['parent1'],
+        parent2 = lambda wildcards: trio_dict[wildcards.sample]['parent2']
     threads: 48
     message: "Executing {rule}: Assembling sample {wildcards.sample} from {input.fasta} and parental k-mers."
-    shell: "(hifiasm -o {params.prefix} -t {threads} -1 {input.parent1_yak} -2 {input.parent2_yak} {input.fasta}) > {log} 2>&1"
-
+    shell:
+            """
+            (
+                hifiasm -o {params.prefix} -t {threads} \
+                    -1 {input.parent1_yak} -2 {input.parent2_yak} {input.fasta} \
+                && (echo -e "hap1\t{params.parent1}\nhap2\t{params.parent2}" > cohorts/{cohort}/hifiasm/{wildcards.sample}.asm.key.txt) \
+            ) > {log} 2>&1
+            """
+    
 
 rule gfa2fa:
     input: f"cohorts/{cohort}/hifiasm/{{sample}}.asm.dip.{{infix}}.gfa"
