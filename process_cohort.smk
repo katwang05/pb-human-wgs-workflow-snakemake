@@ -24,6 +24,22 @@ def get_samples(cohortyaml=config['cohort_yaml'], cohort_id=config['cohort']):
                 samples.append(c[affectedstatus][individual]['id'])
     return samples
 
+def get_trios(cohortyaml=config['cohort_yaml'], cohort_id=config['cohort']):
+    """Find all trios associated with cohort."""
+    with open(cohortyaml, 'r') as yamlfile:
+        cohort_list = yaml.load(yamlfile, Loader = yaml.FullLoader)
+    for c in cohort_list:
+        if c['id'] == cohort_id:
+            break
+    trio_dict = defaultdict(dict)
+    for affectedstatus in ['affecteds', 'unaffecteds']:
+        if affectedstatus in c:
+            for individual in range(len(c[affectedstatus])):
+                if ('parents' in c[affectedstatus][individual]) \
+                        and (len(c[affectedstatus][individual]['parents']) == 2):
+                    trio_dict[c[affectedstatus][individual]['id']]['parent1'] = c[affectedstatus][individual]['parents'][0]
+                    trio_dict[c[affectedstatus][individual]['id']]['parent2'] = c[affectedstatus][individual]['parents'][1]
+    return trio_dict
 
 # cohort will be provided at command line with `--config cohort=$COHORT`
 cohort = config['cohort']
@@ -41,6 +57,34 @@ elif len(samples) == 1:
 else:
     singleton = False
 print(f"Samples in cohort: {samples}.")
+
+# find all trios in cohort
+trio_dict = get_trios()
+if trio_dict:
+    print(f"Parents listed for samples: {list(trio_dict.keys())}")
+    for s in trio_dict.keys():
+        print(f"Parent IDs for {s}: {trio_dict[s]['parent1']}, {trio_dict[s]['parent2']}")
+else:
+    print(f"No trios found in cohort.")
+
+# scan smrtcells/ready directory for uBAMs or FASTQs that are ready to process
+# uBAMs have priority over FASTQs in downstream processes if both are available
+ubam_pattern = re.compile(r'smrtcells/ready/(?P<sample>[A-Za-z0-9_-]+)/(?P<movie>m\d{5}[Ue]?_\d{6}_\d{6}).(ccs|hifi_reads).bam')
+ubam_dict = defaultdict(dict)
+fastq_pattern = re.compile(r'smrtcells/ready/(?P<sample>[A-Za-z0-9_-]+)/(?P<movie>m\d{5}[Ue]?_\d{6}_\d{6}).fastq.gz')
+fastq_dict = defaultdict(dict)
+for infile in Path('smrtcells/ready').glob('**/*.bam'):
+    ubam_match = ubam_pattern.search(str(infile))
+    if ubam_match:
+        # create a dict-of-dict to link samples to movie context to uBAM filenames
+        ubam_dict[ubam_match.group('sample')][ubam_match.group('movie')] = str(infile)
+for infile in Path('smrtcells/ready').glob('**/*.fastq.gz'):
+    fastq_match = fastq_pattern.search(str(infile))
+    if fastq_match:
+        # create a dict-of-dict to link samples to movie context to FASTQ filenames
+        fastq_dict[fastq_match.group('sample')][fastq_match.group('movie')] = str(infile)
+# get list of unique movie names for each sample, ignoring redundancy between ubam and fastq
+ubam_fastq_dict = {sample:list(set(list(ubam_dict[sample].keys()) + list(fastq_dict[sample].keys()))) for sample in list(ubam_dict.keys()) + list(fastq_dict.keys())}
 
 # scan samples/*/aligned to generate a dict-of-lists-of-movies for 
 pattern = re.compile(r'samples/(?P<sample>[A-Za-z0-9_-]+)/aligned/(?P<movie>m\d{5}[Ue]?_\d{6}_\d{6})\.(?P<reference>.*).bam')
@@ -73,6 +117,19 @@ else:
 # build a list of targets
 targets = []
 include: 'rules/cohort_common.smk'
+
+# assemble with hifiasm
+include: 'rules/cohort_hifiasm.smk'
+if 'trio_assembly' in config['cohort_targets']:
+    # assembly and stats
+    targets.extend([f"cohorts/{cohort}/hifiasm/{trio}.asm.dip.{infix}.{suffix}"
+                for suffix in ['fasta.gz', 'fasta.stats.txt']
+                for infix in ['hap1.p_ctg', 'hap2.p_ctg']
+                for trio in trio_dict.keys()])
+    # assembly alignments
+    targets.extend([f"cohorts/{cohort}/hifiasm/{trio}.asm.{ref}.{suffix}"
+                for suffix in ['bam', 'bam.bai']
+                for trio in trio_dict.keys()])
 
 # generate a cohort level pbsv vcf or use singleton vcf
 include: 'rules/cohort_pbsv.smk'
