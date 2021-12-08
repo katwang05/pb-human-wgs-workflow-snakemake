@@ -25,6 +25,26 @@ rule svpack_filter_annotated:
         """
 
 
+rule check_sv_inheritance_pattern:
+    input: f"cohorts/{cohort}/svpack/{cohort}.{ref}.pbsv.svpack.vcf"
+    output: f"cohorts/{cohort}/svpack/{cohort}.{ref}.pbsv.svpack.filtered_inheritance.vcf"
+    log: f"cohorts/{cohort}/logs/svpack/{cohort}.{ref}.pbsv.svpack.filtered_inheritance.log"
+    benchmark: f"cohorts/{cohort}/benchmarks/svpack/{cohort}.{ref}.pbsv.svpack.filtered_inheritance.tsv"
+    params:
+        min_depth = 5,
+        affecteds = affecteds,
+        unaffecteds = unaffecteds,
+    conda: "envs/svpack.yaml"
+    shell:
+        """
+        (python workflow/scripts/sv_inheritance.py \
+            --min_depth {params.min_depth} \
+            --affecteds {params.affecteds} \
+            --unaffecteds {params.unaffecteds} \
+            {input} > {output}) 2> {log}
+        """
+
+
 info_fields = [
     'SVTYPE',
     'SVLEN',

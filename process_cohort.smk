@@ -18,11 +18,13 @@ def get_samples(cohortyaml=config['cohort_yaml'], cohort_id=config['cohort']):
         if c['id'] == cohort_id:
             break
     samples = []
+    samples_by_status = defaultdict(list)
     for affectedstatus in ['affecteds', 'unaffecteds']:
         if affectedstatus in c:
             for individual in range(len(c[affectedstatus])):
                 samples.append(c[affectedstatus][individual]['id'])
-    return samples
+                status[affectedstatus].append(c[affectedstatus][individual]['id'])
+    return samples, samples_by_status['affecteds'], samples_by_status['unaffecteds']
 
 
 # cohort will be provided at command line with `--config cohort=$COHORT`
@@ -32,7 +34,7 @@ all_chroms = config['ref']['autosomes'] + config['ref']['sex_chrom'] + config['r
 print(f"Processing cohort {cohort} with reference {ref}.")
 
 # find all samples in cohort
-samples = get_samples()
+samples, affecteds, unaffecteds = get_samples()
 
 if len(samples) == 0:
     print(f"No samples in {cohort}.") and exit
@@ -83,7 +85,9 @@ if 'pbsv_vcf' in config['cohort_targets']:
 include: 'rules/cohort_svpack.smk'
 if 'svpack' in config['cohort_targets']:
     targets.extend([f"cohorts/{cohort}/svpack/{cohort}.{ref}.pbsv.svpack.{suffix}"
-                    for suffix in ['vcf.gz', 'vcf.gz.tbi', 'tsv']])
+                    for suffix in ['vcf.gz', 'vcf.gz.tbi', 'tsv',
+                                   'filtered_inheritance.vcf.gz',
+                                   'filtered_inheritance.vcf.gz.tbi',]])
 
 # generate a cohort level deepvariant vcf or use singleton vcf
 include: 'rules/cohort_glnexus.smk'
