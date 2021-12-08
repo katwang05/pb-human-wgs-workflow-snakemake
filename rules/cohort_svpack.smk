@@ -41,7 +41,7 @@ rule check_sv_inheritance_pattern:
             --min_depth {params.min_depth} \
             --affecteds {params.affecteds} \
             --unaffecteds {params.unaffecteds} \
-            {input} > {output}) 2> {log}
+            {input} {output}) 2> {log}
         """
 
 
