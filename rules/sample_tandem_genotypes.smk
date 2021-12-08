@@ -81,27 +81,20 @@ rule tandem_genotypes_absolute_count:
     message: "Executing {rule}: Adjusting repeat count with reference counts for {input}."
     shell:
         """
-        (awk -v OFS='\t'
-            '0 ~ /^#/ {{  # append to header
-                print $0 " modified by adding reference repeat count"
-            }}
+        (awk -v OFS='\t' \
+            '$0 ~ /^#/ {{print $0 " modified by adding reference repeat count"}}
             $0 !~ /^#/ {{
-                # reference repeat count is estimated as the length
-                # of the region of interest dividied by the length
-                # of the repeat, rounded down to the nearest integer
                 ref_count=int(($3-$2)/length($4));
                 num_fwd=split($7, fwd, ",");
                 num_rev=split($8, rev, ",");
-                # add the ref repeat count to each fwd count
                 new_fwd=result=fwd[1] + ref_count;
                 for (i=2; i<=num_fwd; i++)
                     new_fwd = new_fwd "," fwd[i] + ref_count;
-                # add the ref repeat count to each rev count
                 new_rev=rev[1] + ref_count;
                 for (i=2; i<=num_rev; i++)
-                    new_rev = new_rev "," rev[i] + ref_count
+                    new_rev = new_rev "," rev[i] + ref_count;
                 print $1, $2, $3, $4, $5, $6, new_fwd, new_rev;
-            }} {input} > {output}'
+            }}' {input} > {output} \
         ) > {log} 2>&1
         """
 
