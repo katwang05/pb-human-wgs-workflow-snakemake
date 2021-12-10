@@ -1,4 +1,4 @@
-localrules: bgzip_vcf, tabix_vcf, tabix_bcf, create_ped
+localrules: bgzip_vcf, tabix_vcf, tabix_bcf, create_ped, reformat_ensembl_gff, generate_lof_lookup, generate_clinvar_lookup
 
 
 rule bgzip_vcf:
@@ -59,3 +59,37 @@ rule calculate_phrank:
         {{input.hpoterms}} {{input.hpodag}} {{input.hpoannotations}} \
         {{input.ensembltohgnc}} {{input.cohort_yaml}} {cohort} {{output}}) > {{log}} 2>&1
         """
+
+
+rule reformat_ensembl_gff:
+    output: config['ref']['ensembl_gff']
+    log: "logs/reformat_ensemble_gff.log"
+    params: url = config['ref']['ensembl_gff_url']
+    conda: "envs/htslib.yaml"
+    message: "Executing {rule}: Downloaded and reformatting ensembl GFF to {output}."
+    shell:
+        """
+        (wget -qO - {params.url} | zcat \
+            | awk -v OFS="\t" '{{ if ($1=="##sequence-region") && ($2~/^G|K/) {{ print $0; }} else if ($0!~/G|K/) {{ print "chr" $0; }} }}' \
+            | bgzip > {output}) > {log} 2>&1
+        """
+
+
+rule generate_lof_lookup:
+    output: config['lof_lookup']
+    log: "logs/generate_lof_lookup.log"
+    params: url = config['lof_lookup_url']
+    message: "Executing {rule}: Generating a lookup table for loss-of-function metrics at {output}."
+    shell:
+        """
+        (wget -qO - {params.url} | zcat | cut -f 1,21,24 | tail -n+2 \
+            | awk "{{ printf(\\"%s\\tpLI=%.3g;oe_lof=%.5g\\n\\", \$1, \$2, \$3) }}" > {output}) > {log} 2>&1
+        """
+
+
+rule generate_clinvar_lookup:
+    output: config['clinvar_lookup']
+    log: "logs/generate_clinvar_lookup.log"
+    params: url = config['clinvar_lookup_url']
+    message: "Executing {rule}: Generating a lookup table for clinvar gene descriptions at {output}."
+    shell: "(wget -qO - {params.url} | cut -f 2,5 | grep -v ^$'\t' > {output}) > {log} 2>&1"
