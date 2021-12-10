@@ -38,7 +38,8 @@ GLNEXUS_VERSION: 'v1.2.7'
 score_matrix: 'resources/tandem-genotypes/score_matrix.par'
 
 # slivar
-slivar_js: 'resources/slivar/slivar-functions.js'
+slivar_js: 'scripts/slivar-functions.js'
+slivar_pbsv_js: 'scripts/slivar-functions-pbsv.js'
 # slivar filters
 # gnomad -> frequency in gnomAD v3
 # hprc -> frequency in 40 HPRC samples sequenced with HiFi
