@@ -21,8 +21,16 @@ def import_records(reader):
     records = list(reader)
     lookup = defaultdict(dict)
     for record in records:
-        varkey = (record.CHROM, str(record.POS),
-                  record.REF, record.ALT[0].value)
+        if record.ALT[0].type == "BND":
+            val = "BND"
+        elif record.ALT[0].type == "SYMBOLIC":
+            val = "<DUP>"
+        else:
+            val = record.ALT[0].value
+        varkey = (record.CHROM,
+                  str(record.POS),
+                  record.REF,
+                  val)
         for sample in record.calls:
             samplename = sample.sample
             GT = sample.data['GT']
@@ -40,6 +48,8 @@ def compare_phase(slivar_comphet, calls, lookup):
     return cis if variants are on same haplotype, trans if on opposite
     haplotypes, and unknown otherwise."""
     sample, gene, chid, chrom, pos, ref, alt = slivar_comphet.split('/')
+    if ('[' in alt) or (']' in alt):
+        alt = "BND"
     ch_PS, ch_GT = lookup[(chrom, pos, ref, alt)][sample]
     # look up the phase set and genotype of this variant
     if not calls[sample].is_phased:

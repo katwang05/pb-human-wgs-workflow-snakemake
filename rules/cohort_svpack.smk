@@ -20,7 +20,7 @@ rule svpack_filter_annotated:
             python workflow/scripts/svpack/svpack match -v - {input.gnomadsv_vcf} | \
             python workflow/scripts/svpack/svpack match -v - {input.hprc_pbsv_vcf} | \
             python workflow/scripts/svpack/svpack match -v - {input.decode_vcf} | \
-            python workflow/scripts/svpack/svpack consequence - {input.gff} | \
+            python workflow/scripts/svpack/svpack consequence - {input.gff} \
             > {output}) 2> {log}
         """
 
@@ -28,7 +28,6 @@ rule svpack_filter_annotated:
 if singleton:
     # singleton
     slivar_filters = [
-        "--info 'variant.FILTER==\"PASS\"}'",
         "--family-expr 'recessive:fam.every(segregating_recessive)'",
         "--family-expr 'x_recessive:(variant.CHROM == \"chrX\") && fam.every(segregating_recessive_x)'",
         "--family-expr 'dominant:fam.every(segregating_dominant)'",
@@ -38,7 +37,6 @@ if singleton:
 else:
     # trio cohort
     slivar_filters = [
-        "--info 'variant.FILTER==\"PASS\"'",
         "--family-expr 'recessive:fam.every(segregating_recessive)'",
         "--family-expr 'x_recessive:(variant.CHROM == \"chrX\") && fam.every(segregating_recessive_x)'",
         "--family-expr 'dominant:fam.every(segregating_dominant)'",
@@ -70,7 +68,7 @@ rule slivar_structural_variant:
             {params.filters} \
             --vcf {input.vcf} \
             --ped {input.ped} \
-            --out-vcf {output}) > {log} 2>&1
+            > {output}) > {log} 2>&1
         """
 
 
@@ -83,7 +81,6 @@ rule slivar_structural_variant_compound_hets:
         vcf = f"cohorts/{cohort}/svpack/{cohort}.{ref}.pbsv.svpack.slivar.compound-hets.vcf"
     log: f"cohorts/{cohort}/logs/slivar/compound-hets/{cohort}.{ref}.pbsv.svpack.slivar.compound-hets.vcf.log"
     benchmark: f"cohorts/{cohort}/benchmarks/slivar/compound-hets/{cohort}.{ref}.pbsv.svpack.slivar.compound-hets.vcf.tsv"
-    params: skip = ",".join(skip_list)
     conda: "envs/slivar.yaml"
     message: f"Executing {{rule}}: Finding compound hets in {cohort}."
     shell:
@@ -111,7 +108,7 @@ info_fields = [
 rule slivar_svpack_tsv:
     input:
         filt_vcf = f"cohorts/{cohort}/svpack/{cohort}.{ref}.pbsv.svpack.slivar.vcf.gz",
-        comphet_vcf = f"cohorts/{cohort}/svpack/{cohort}.{ref}.pbsv.svpack.slivar.compound-hets.vcf.gz"
+        comphet_vcf = f"cohorts/{cohort}/svpack/{cohort}.{ref}.pbsv.svpack.slivar.compound-hets.vcf.gz",
         ped = f"cohorts/{cohort}/{cohort}.ped",
         lof_lookup = config['lof_lookup'],
         clinvar_lookup = config['clinvar_lookup'],

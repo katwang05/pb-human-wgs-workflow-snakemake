@@ -82,7 +82,8 @@ if 'pbsv_vcf' in config['cohort_targets']:
 # annotate and filter pbsv vcf with svpack
 include: 'rules/cohort_svpack.smk'
 if 'svpack' in config['cohort_targets']:
-    targets.extend([f"cohorts/{cohort}/svpack/{cohort}.{ref}.pbsv.svpack.{suffix}"
+    targets.extend([f"cohorts/{cohort}/svpack/{cohort}.{ref}.pbsv.svpack.{infix}.{suffix}"
+                    for infix in ['slivar', 'slivar.compound-hets']
                     for suffix in ['vcf.gz', 'vcf.gz.tbi', 'tsv']])
 
 # generate a cohort level deepvariant vcf or use singleton vcf
