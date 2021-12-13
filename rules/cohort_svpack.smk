@@ -25,24 +25,19 @@ rule svpack_filter_annotated:
         """
 
 
+slivar_filters = [
+    "--family-expr 'recessive:fam.every(segregating_recessive)'",
+    "--family-expr 'x_recessive:(variant.CHROM == \"chrX\") && fam.every(segregating_recessive_x)'",
+    "--family-expr 'dominant:fam.every(segregating_dominant)'",
+    "--family-expr 'x_dominant:(variant.CHROM == \"chrX\") && fam.every(segregating_dominant_x)'",
+]
+
 if singleton:
     # singleton
-    slivar_filters = [
-        "--family-expr 'recessive:fam.every(segregating_recessive)'",
-        "--family-expr 'x_recessive:(variant.CHROM == \"chrX\") && fam.every(segregating_recessive_x)'",
-        "--family-expr 'dominant:fam.every(segregating_dominant)'",
-        "--family-expr 'x_dominant:(variant.CHROM == \"chrX\") && fam.every(segregating_dominant_x)'",
-        "--sample-expr 'comphet_side:sample.het'"
-        ]
+    slivar_filters.append("--sample-expr 'comphet_side:sample.het'")
 else:
     # trio cohort
-    slivar_filters = [
-        "--family-expr 'recessive:fam.every(segregating_recessive)'",
-        "--family-expr 'x_recessive:(variant.CHROM == \"chrX\") && fam.every(segregating_recessive_x)'",
-        "--family-expr 'dominant:fam.every(segregating_dominant)'",
-        "--family-expr 'x_dominant:(variant.CHROM == \"chrX\") && fam.every(segregating_dominant_x)'",
-        "--trio 'comphet_side:comphet_side(kid, mom, dad) && kid.affected'"
-    ]
+    slivar_filters.append("--trio 'comphet_side:comphet_side(kid, mom, dad) && kid.affected'")
 
 
 rule slivar_structural_variant:
@@ -50,7 +45,7 @@ rule slivar_structural_variant:
         vcf = f"cohorts/{cohort}/svpack/{cohort}.{ref}.pbsv.svpack.vcf.gz",
         tbi = f"cohorts/{cohort}/svpack/{cohort}.{ref}.pbsv.svpack.vcf.gz.tbi",
         ped = f"cohorts/{cohort}/{cohort}.ped",
-        js = "workflow/scripts/slivar-functions-pbsv.js",
+        js = config['slivar_pbsv_js'],
         ref = config['ref']['fasta']
     output: f"cohorts/{cohort}/svpack/{cohort}.{ref}.pbsv.svpack.slivar.vcf"
     log: f"cohorts/{cohort}/logs/slivar/filter/{cohort}.{ref}.pbsv.svpack.slivar.vcf.log"
@@ -72,6 +67,12 @@ rule slivar_structural_variant:
         """
 
 
+skip_list = [
+    'sv:intron',
+    'sv:utr'
+    ]
+
+
 rule slivar_structural_variant_compound_hets:
     input: 
         vcf = f"cohorts/{cohort}/svpack/{cohort}.{ref}.pbsv.svpack.slivar.vcf.gz",
@@ -81,11 +82,13 @@ rule slivar_structural_variant_compound_hets:
         vcf = f"cohorts/{cohort}/svpack/{cohort}.{ref}.pbsv.svpack.slivar.compound-hets.vcf"
     log: f"cohorts/{cohort}/logs/slivar/compound-hets/{cohort}.{ref}.pbsv.svpack.slivar.compound-hets.vcf.log"
     benchmark: f"cohorts/{cohort}/benchmarks/slivar/compound-hets/{cohort}.{ref}.pbsv.svpack.slivar.compound-hets.vcf.tsv"
+    params: skip = ",".join(skip_list)
     conda: "envs/slivar.yaml"
     message: f"Executing {{rule}}: Finding compound hets in {cohort}."
     shell:
         """
         (slivar compound-hets \
+            --skip {params.skip} \
             --vcf {input.vcf} \
             --sample-field comphet_side \
             --ped {input.ped} \

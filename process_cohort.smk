@@ -98,6 +98,12 @@ if 'slivar' in config['cohort_targets']:
                     for infix in ['slivar', 'slivar.compound-hets']
                     for suffix in ['vcf.gz', 'vcf.gz.tbi', 'tsv']])
 
+# compound hets between small and structural variants
+include: 'rules/cohort_compound_hets.smk'
+if 'slivar' in config['cohort_targets'] and 'svpack' in config['cohort_targets']:
+    targets.extend([f"cohorts/{cohort}/slivar/{cohort}.{ref}.concat.compound-hets.{suffix}"
+                    for suffix in ['vcf.gz', 'vcf.gz.tbi', 'tsv']])    
+
 
 ruleorder: split_glnexus_vcf > whatshap_phase > whatshap_bcftools_concat > bcftools_bcf2vcf > bgzip_vcf
 localrules: all, md5sum
