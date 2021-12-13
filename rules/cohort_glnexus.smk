@@ -9,7 +9,7 @@ rule glnexus:
         scratch_dir = temp(directory(f"cohorts/{cohort}/glnexus/{cohort}.{ref}.GLnexus.DB/"))
     log: f"cohorts/{cohort}/logs/glnexus/{cohort}.{ref}.log"
     benchmark: f"cohorts/{cohort}/benchmarks/glnexus/{cohort}.{ref}.tsv"
-    container: f"docker://quay.io/mlin/glnexus:{config['GLNEXUS_VERSION']}"
+    container: f"docker://ghcr.io/dnanexus-rnd/glnexus:{config['GLNEXUS_VERSION']}"
     threads: 24
     message: f"Executing {{rule}}: Joint calling variants from {cohort} cohort."
     shell:
