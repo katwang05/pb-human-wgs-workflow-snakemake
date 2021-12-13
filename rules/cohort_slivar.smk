@@ -48,44 +48,28 @@ rule bcftools_norm:
     shell: "(bcftools norm {params} {input.vcf} -o {output}) > {log} 2>&1"
 
 
+slivar_filters = [
+        f"""--info 'variant.FILTER==\"PASS\" \
+                && INFO.gnomad_af <= {config['max_gnomad_af']} \
+                && INFO.hprc_af <= {config['max_hprc_af']} \
+                && INFO.gnomad_nhomalt <= {config['max_gnomad_nhomalt']} \
+                && INFO.hprc_nhomalt <= {config['max_hprc_nhomalt']}'""",
+        "--family-expr 'recessive:fam.every(segregating_recessive)'",
+        "--family-expr 'x_recessive:(variant.CHROM == \"chrX\") && fam.every(segregating_recessive_x)'",
+        f"""--family-expr 'dominant:fam.every(segregating_dominant) \
+                       && INFO.gnomad_ac <= {config['max_gnomad_ac']} \
+                       && INFO.hprc_ac <= {config['max_hprc_ac']}'""",
+        f"""--family-expr 'x_dominant:(variant.CHROM == \"chrX\") \
+                       && fam.every(segregating_dominant_x) \
+                       && INFO.gnomad_ac <= {config['max_gnomad_ac']} \
+                       && INFO.hprc_ac <= {config['max_hprc_ac']}'""",
+]
 if singleton:
     # singleton
-    slivar_filters = [
-        f"""--info 'variant.FILTER==\"PASS\" \
-                && INFO.gnomad_af <= {config['max_gnomad_af']} \
-                && INFO.hprc_af <= {config['max_hprc_af']} \
-                && INFO.gnomad_nhomalt <= {config['max_gnomad_nhomalt']} \
-                && INFO.hprc_nhomalt <= {config['max_hprc_nhomalt']}'""",
-        "--family-expr 'recessive:fam.every(segregating_recessive)'",
-        "--family-expr 'x_recessive:(variant.CHROM == \"chrX\") && fam.every(segregating_recessive_x)'",
-        f"""--family-expr 'dominant:fam.every(segregating_dominant) \
-                       && INFO.gnomad_ac <= {config['max_gnomad_ac']} \
-                       && INFO.hprc_ac <= {config['max_hprc_ac']}'""",
-        f"""--family-expr 'x_dominant:(variant.CHROM == \"chrX\") \
-                       && fam.every(segregating_dominant_x) \
-                       && INFO.gnomad_ac <= {config['max_gnomad_ac']} \
-                       && INFO.hprc_ac <= {config['max_hprc_ac']}'""",
-        f"--sample-expr 'comphet_side:sample.het && sample.GQ > {config['min_gq']}'"
-        ]
+    slivar_filters.append(f"--sample-expr 'comphet_side:sample.het && sample.GQ > {config['min_gq']}'")
 else:
     # trio cohort
-    slivar_filters = [
-        f"""--info 'variant.FILTER==\"PASS\" \
-                && INFO.gnomad_af <= {config['max_gnomad_af']} \
-                && INFO.hprc_af <= {config['max_hprc_af']} \
-                && INFO.gnomad_nhomalt <= {config['max_gnomad_nhomalt']} \
-                && INFO.hprc_nhomalt <= {config['max_hprc_nhomalt']}'""",
-        "--family-expr 'recessive:fam.every(segregating_recessive)'",
-        "--family-expr 'x_recessive:(variant.CHROM == \"chrX\") && fam.every(segregating_recessive_x)'",
-        f"""--family-expr 'dominant:fam.every(segregating_dominant) \
-                       && INFO.gnomad_ac <= {config['max_gnomad_ac']} \
-                       && INFO.hprc_ac <= {config['max_hprc_ac']}'""",
-        f"""--family-expr 'x_dominant:(variant.CHROM == \"chrX\") \
-                       && fam.every(segregating_dominant_x) \
-                       && INFO.gnomad_ac <= {config['max_gnomad_ac']} \
-                       && INFO.hprc_ac <= {config['max_hprc_ac']}'""",
-        "--trio 'comphet_side:comphet_side(kid, mom, dad) && kid.affected'"
-    ]
+    slivar_filters.append("--trio 'comphet_side:comphet_side(kid, mom, dad) && kid.affected'")
 
 
 rule slivar_small_variant:
