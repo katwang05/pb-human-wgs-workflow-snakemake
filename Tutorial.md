@@ -414,7 +414,10 @@ The following are some of the key output files from these workflows.
     - Structural variants + associated index file
   - `tandem-genotypes/*.tandem-genotypes.txt`
     - Genotypes for a list of known disease-causing tandem repeat variants
-    - When there is insufficient coverage to genotype a known tandem repeat variants, it will be listed in `tandem-genotypes/*.tandem-genotypes.dropouts.txt`
+  - `tandem-genotypes/*.tandem-genotypes.absolute.txt`
+    - Same as above, but with repeat counts adjusted by adding estimated number of reads in the reference
+  - `tandem-genotypes/*.tandem-genotypes.dropouts.txt`
+    - Regions with insufficient coverage to genotype are listed here
 - **Assembly**
   - `hifiasm/*.asm.bp.hap1.p_ctg.fasta.gz` 
   - `hifiasm/*.asm.bp.hap2.p_ctg.fasta.gz`
