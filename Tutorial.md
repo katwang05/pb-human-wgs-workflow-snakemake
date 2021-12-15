@@ -128,12 +128,8 @@ Create additional empty directories required by the workflow.
 mkdir -p cluster_logs smrtcells/ready smrtcells/done samples cohorts
 ```
 
-Two additional folders (`reference/` and `resources/`) which exceed GitHub size limits must be downloaded from [zenodo](https://zenodo.org/).
+There are two additional folders (`reference/` and `resources/`) which contain content necessary for these workflows to run. We are working to make these folders available in a public repository, but until then please contact one of the repository contributors or, if applicable, your PacBio representative to request these materials.
 
-
-```
-PLACEHOLDER TEXT
-```
 
 After completing these steps, you can visualize the complete directory structure using the `tree -d` command. It is imperative that you preserve this directory structure (and the contents of those directories) to ensure the proper functioning of the workflows. Avoid moving files/directories or changing their names if you intend to run the workflows again in the future.
 
