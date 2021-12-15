@@ -64,13 +64,39 @@ rule last_align:
 rule tandem_genotypes:
     input:
         maf = f"samples/{sample}/tandem-genotypes/{sample}.maf.gz",
-        repeats = config['ref']['tg_bed']
+        repeats = config['ref']['tg_list']
     output: f"samples/{sample}/tandem-genotypes/{sample}.tandem-genotypes.txt"
     log: f"samples/{sample}/logs/tandem-genotypes/{sample}.log"
     benchmark: f"samples/{sample}/benchmarks/tandem-genotypes/{sample}.tsv"
     conda: "envs/tandem-genotypes.yaml"
     message: "Executing {rule}: Genotyping tandem repeats from {input.repeats} regions in {input.maf}."
     shell: "(tandem-genotypes {input.repeats} {input.maf} > {output}) > {log} 2>&1"
+
+
+rule tandem_genotypes_absolute_count:
+    input: f"samples/{sample}/tandem-genotypes/{sample}.tandem-genotypes.txt"
+    output: f"samples/{sample}/tandem-genotypes/{sample}.tandem-genotypes.absolute.txt"
+    log: f"samples/{sample}/logs/tandem-genotypes/{sample}.absolute.log"
+    benchmark: f"samples/{sample}/benchmarks/tandem-genotypes/{sample}.absolute.tsv"
+    message: "Executing {rule}: Adjusting repeat count with reference counts for {input}."
+    shell:
+        """
+        (awk -v OFS='\t' \
+            '$0 ~ /^#/ {{print $0 " modified by adding reference repeat count"}}
+            $0 !~ /^#/ {{
+                ref_count=int(($3-$2)/length($4));
+                num_fwd=split($7, fwd, ",");
+                num_rev=split($8, rev, ",");
+                new_fwd=result=fwd[1] + ref_count;
+                for (i=2; i<=num_fwd; i++)
+                    new_fwd = new_fwd "," fwd[i] + ref_count;
+                new_rev=rev[1] + ref_count;
+                for (i=2; i<=num_rev; i++)
+                    new_rev = new_rev "," rev[i] + ref_count;
+                print $1, $2, $3, $4, $5, $6, new_fwd, new_rev;
+            }}' {input} > {output} \
+        ) > {log} 2>&1
+        """
 
 
 rule tandem_genotypes_plot:
