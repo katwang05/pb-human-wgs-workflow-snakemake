@@ -1,4 +1,4 @@
-localrules: reformat_ensembl_gff, generate_lof_lookup, generate_clinvar_lookup
+localrules: reformat_ensembl_gff, generate_lof_lookup, generate_clinvar_lookup, slivar_tsv
 
 
 rule reformat_ensembl_gff:

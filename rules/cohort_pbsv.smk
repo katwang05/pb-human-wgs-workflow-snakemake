@@ -1,5 +1,3 @@
-# svsig_dict[chrom] = list of svsigs for all movies for all samples for given chrom
-
 localrules: bcftools_concat_pbsv_vcf
 
 

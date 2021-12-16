@@ -114,7 +114,7 @@ if 'assembly' in config['sample_targets']:
                     for suffix in ['vcf.gz', 'vcf.gz.tbi', 'vcf.stats.txt']])
 
 
-localrules: all
+localrules: all, md5sum
 
 
 rule all:

@@ -1,4 +1,5 @@
-# gvcf_list -> list of g.vcf.gz for all samples
+localrules: whatshap_bcftools_concat
+
 
 rule glnexus:
     input:
