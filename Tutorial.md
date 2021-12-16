@@ -506,8 +506,8 @@ The following tools and methods should also be cited if this workflow generates 
 | minimap2 | Li, Heng. "Minimap2: pairwise alignment for nucleotide sequences." Bioinformatics 34.18 (2018): 3094-3100. |
 | mosdepth | Pedersen, Brent S., and Aaron R. Quinlan. "Mosdepth: quick coverage calculation for genomes and exomes." Bioinformatics 34.5 (2018): 867-868. |
 | pbmm2 | https://github.com/PacificBiosciences/pbmm2 |
-| pbsv | Rowell, William J., et al. "Comprehensive variant detection in a human genome with highly accurate long reads." European Journal of Human Genetics 27 (2019): 1723-1723. |
-| slivar | - Pedersen, Brent S., et al. "Effective variant filtering and expected candidate variant yield in studies of rare human disease." NPJ Genomic Medicine 6.1 (2021): 1-8. |
+| pbsv | https://github.com/pacificbiosciences/pbsv |
+| slivar | Pedersen, Brent S., et al. "Effective variant filtering and expected candidate variant yield in studies of rare human disease." NPJ Genomic Medicine 6.1 (2021): 1-8. |
 | Snakemake | Mölder, Felix, et al. "Sustainable data analysis with Snakemake." F1000Research 10 (2021). |
 | svpack | https://github.com/PacificBiosciences/svpack |
 | tandem-genotypes | Mitsuhashi, Satomi, et al. "Tandem-genotypes: robust detection of tandem repeat expansions from long DNA reads." Genome biology 20.1 (2019): 1-17. |
