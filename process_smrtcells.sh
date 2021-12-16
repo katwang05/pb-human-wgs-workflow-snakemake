@@ -3,7 +3,7 @@
 #SBATCH -p compute
 #SBATCH -N 1
 #SBATCH -n 1
-#SBATCH --cpus-per-task 1
+#SBATCH --cpus-per-task 4
 #SBATCH -o cluster_logs/slurm-%x-%j-%N.out
 
 # set umask to avoid locking each other out of directories
@@ -13,7 +13,7 @@ umask 002
 snakemake --reason \
     --rerun-incomplete \
     --keep-going \
-    --local-cores 1 \
+    --local-cores 4 \
     --jobs 500 \
     --max-jobs-per-second 1 \
     --use-conda --conda-frontend mamba \

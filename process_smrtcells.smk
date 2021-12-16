@@ -105,7 +105,7 @@ if 'kmers' in config['smrtcells_targets']:
                     for movie in list(fastq_dict[sample].keys())]) # kmers from FASTQs
 
 
-localrules: all
+localrules: all, md5sum
 
 
 rule all:

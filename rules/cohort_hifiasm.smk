@@ -1,4 +1,5 @@
 ruleorder: samtools_fasta > seqtk_fastq_to_fasta
+localrules: asm_stats
 
 
 rule samtools_fasta:
