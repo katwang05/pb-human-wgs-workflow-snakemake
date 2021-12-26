@@ -99,7 +99,7 @@ If conda is not already available to you, we recommend installing Miniconda, a f
 ## Other
 Once conda is installed, the easiest way to manage the final dependencies is by creating a conda environment. The following command creates a conda environment named `pacbio-human-wgs` with the final requirements. 
 
-`conda create -n pacbio-human-wgs -c bioconda -c conda-forge lockfile==0.12.2 python=3 snakemake>=5.19 mamba`
+`conda create -n pacbio-human-wgs -c bioconda -c conda-forge lockfile==0.12.2 python=3 snakemake mamba`
 
 This environment must be activated before using the workflow.
 
