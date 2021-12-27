@@ -16,7 +16,7 @@ rule glnexus:
     shell:
         """
         (rm -rf {output.scratch_dir} && \
-        glnexus_cli --threads {threads} \
+        glnexus_cli --threads {threads} --mem-gbytes 192 \
             --dir {output.scratch_dir} \
             --config DeepVariant_unfiltered {input.gvcf} > {output.bcf}) 2> {log}
         """
