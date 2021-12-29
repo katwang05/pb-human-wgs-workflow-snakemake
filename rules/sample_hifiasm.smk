@@ -1,4 +1,5 @@
 ruleorder: samtools_fasta > seqtk_fastq_to_fasta
+localrules: asm_stats, htsbox_bcftools_stats, gfa2fa
 
 
 rule samtools_fasta:
@@ -132,4 +133,3 @@ rule htsbox_bcftools_stats:
     conda: "envs/bcftools.yaml"
     message: "Executing {rule}: Calculating VCF statistics for {input}."
     shell: "(bcftools stats --threads 3 {params} {input} > {output}) > {log} 2>&1"
-

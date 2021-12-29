@@ -1,5 +1,3 @@
-# svsig_dict[chrom] = list of svsigs for all movies for all samples for given chrom
-
 localrules: bcftools_concat_pbsv_vcf
 
 
@@ -12,7 +10,7 @@ rule pbsv_call:
     benchmark: f"cohorts/{cohort}/benchmarks/pbsv/call/{cohort}.{ref}.{{region}}.tsv"
     params:
         region = lambda wildcards: wildcards.region,
-        extra = "--ccs -m 20 -A 3 -O 3",
+        extra = "--hifi -m 20",
         loglevel = "INFO"
     threads: 8
     conda: "envs/pbsv.yaml"

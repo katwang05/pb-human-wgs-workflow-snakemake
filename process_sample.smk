@@ -69,15 +69,15 @@ if 'whatshap' in config['sample_targets']:
     # phased VCFs, stats, phase block GTFs, and haplotagged BAMs
     targets.extend([f"samples/{sample}/whatshap/{sample}.{ref}.deepvariant.{suffix}"
                     for suffix in ['phased.vcf.gz', 'phased.vcf.gz.tbi', 'phased.gtf',
-                                'phased.tsv', 'phased.blocklist',
-                                'haplotagged.bam', 'haplotagged.bam.bai']])
+                                   'phased.tsv', 'phased.blocklist',
+                                   'haplotagged.bam', 'haplotagged.bam.bai']])
 
 # genotype STRs
 include: 'rules/sample_tandem_genotypes.smk'
 if 'tandem-genotypes' in config['sample_targets']:
     # tandem-genotypes tabular output and plots
     targets.extend([f"samples/{sample}/tandem-genotypes/{sample}.tandem-genotypes.{suffix}"
-                   for suffix in ['txt', 'pdf', 'dropouts.txt']])
+                    for suffix in ['txt', 'pdf', 'absolute.txt', 'dropouts.txt']])
 
 # calculate coverage of haplotagged sample aBAM with mosdepth
 include: 'rules/sample_mosdepth.smk'
@@ -104,17 +104,17 @@ include: 'rules/sample_hifiasm.smk'
 if 'assembly' in config['sample_targets']:
     # assembly and stats
     targets.extend([f"samples/{sample}/hifiasm/{sample}.asm.bp.{infix}.{suffix}"
-                for suffix in ['fasta.gz', 'fasta.stats.txt']
-                for infix in ['hap1.p_ctg', 'hap2.p_ctg']])
+                    for suffix in ['fasta.gz', 'fasta.stats.txt']
+                    for infix in ['hap1.p_ctg', 'hap2.p_ctg']])
     # assembly alignments
     targets.extend([f"samples/{sample}/hifiasm/{sample}.asm.{ref}.{suffix}"
-                for suffix in ['bam', 'bam.bai']])
+                    for suffix in ['bam', 'bam.bai']])
     # assembly htsbox variants
     targets.extend([f"samples/{sample}/hifiasm/{sample}.asm.{ref}.htsbox.{suffix}"
-                for suffix in ['vcf.gz', 'vcf.gz.tbi', 'vcf.stats.txt']])
+                    for suffix in ['vcf.gz', 'vcf.gz.tbi', 'vcf.stats.txt']])
 
 
-localrules: all
+localrules: all, md5sum
 
 
 rule all:

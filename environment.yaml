@@ -1,4 +1,4 @@
-name: pbRUGD-workflow
+name: pb-human-wgs-workflow
 channels:
 - bioconda
 - conda-forge
@@ -6,3 +6,4 @@ channels:
 dependencies:
 - snakemake>=5.19
 - lockfile==0.12.2
+- mamba

@@ -6,8 +6,8 @@ smrtcells_targets:
   - kmers
 
 sample_targets:
-  - pbsv_vcf  # req: alignment
-  - deepvariant  # req: alignment
+  - pbsv_vcf  # req: alignment in config['smrtcells_targets']
+  - deepvariant  # req: alignment in config['smrtcells_targets']
   - whatshap  # req: deepvariant
   - coverage  # req: whatshap
   - kmers  # req: kmers in config['smrtcells_targets']
@@ -15,10 +15,11 @@ sample_targets:
   - tandem-genotypes  # req: whatshap
 
 cohort_targets:
-  - pbsv_vcf  # req: pbsv_svsig, pbsv_vcf in config['sample_targets']
-  - svpack  # req: pbsv_svsig, pbsv_vcf in config['sample_targets']
+  - pbsv_vcf  # req: pbsv_vcf in config['sample_targets']
+  - svpack  # req: pbsv_vcf in config['sample_targets']
   - deepvariant_vcf  # req: deepvariant, whatshap in config['sample_targets']
   - slivar  # req: deepvariant, whatshap in config['sample_targets']
+  - trio_assembly
 
 # temporary storage
 tmpdir: '/tmp'
@@ -27,12 +28,12 @@ tmpdir: '/tmp'
 kmer_length: 21
 
 # deepvariant
-#DEEPVARIANT_VERSION: '1.2.0'  # CPU-only, will require modifying threads for call_variants rules
-DEEPVARIANT_VERSION: '1.2.0-gpu'  # GPU
+#DEEPVARIANT_VERSION: '1.3.0'  # CPU-only, will require modifying threads for call_variants rules
+DEEPVARIANT_VERSION: '1.3.0-gpu'  # GPU
 N_SHARDS: 256
 
 # glnexus
-GLNEXUS_VERSION: 'v1.2.7'
+GLNEXUS_VERSION: 'v1.4.1'
 
 # last/tandem-genotypes
 score_matrix: 'resources/tandem-genotypes/score_matrix.par'

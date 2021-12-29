@@ -1,5 +1,6 @@
 localrules: calculate_sample_gc_coverage
 
+
 rule calculate_sample_gc_coverage:
     input:
         mosdepth_regions = f"samples/{{sample}}/mosdepth/{{sample}}.{ref}.deepvariant.haplotagged.regions.bed.gz",
