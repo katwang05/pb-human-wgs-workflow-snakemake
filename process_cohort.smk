@@ -19,7 +19,7 @@ def get_samples(cohortyaml=config['cohort_yaml'], cohort_id=config['cohort']):
         if c['id'] == cohort_id:
             break
     else:
-        print(f"Cohort {cohort_id} not found in {cohortyaml}.") and sys.exit(1)
+        sys.exit(f"Cohort {cohort_id} not found in {cohortyaml}.")
     samples = []
     for affectedstatus in ['affecteds', 'unaffecteds']:
         if affectedstatus in c:
@@ -35,7 +35,7 @@ def get_trios(cohortyaml=config['cohort_yaml'], cohort_id=config['cohort']):
         if c['id'] == cohort_id:
             break
     else:
-        print(f"Cohort {cohort_id} not found in {cohortyaml}.") and sys.exit(1)
+        sys.exit(f"Cohort {cohort_id} not found in {cohortyaml}.")
     trio_dict = defaultdict(dict)
     for affectedstatus in ['affecteds', 'unaffecteds']:
         if affectedstatus in c:
