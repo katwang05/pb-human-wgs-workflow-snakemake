@@ -1,4 +1,5 @@
 import os
+import sys
 import re
 import yaml
 from pathlib import Path
@@ -17,6 +18,8 @@ def get_samples(cohortyaml=config['cohort_yaml'], cohort_id=config['cohort']):
     for c in cohort_list:
         if c['id'] == cohort_id:
             break
+    else:
+        print(f"Cohort {cohort_id} not found in {cohortyaml}.") and sys.exit(1)
     samples = []
     for affectedstatus in ['affecteds', 'unaffecteds']:
         if affectedstatus in c:
@@ -31,6 +34,8 @@ def get_trios(cohortyaml=config['cohort_yaml'], cohort_id=config['cohort']):
     for c in cohort_list:
         if c['id'] == cohort_id:
             break
+    else:
+        print(f"Cohort {cohort_id} not found in {cohortyaml}.") and sys.exit(1)
     trio_dict = defaultdict(dict)
     for affectedstatus in ['affecteds', 'unaffecteds']:
         if affectedstatus in c:
