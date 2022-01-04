@@ -19,9 +19,9 @@ def import_mosdepth_summary(mosdepth_summary):
 
 def coverage_ratio(df, chrom1, chrom2):
     """Calculate the coverage ratio of chrom1:chrom2"""
-    if len(df[df.chrom == chrom2]) == 0:
+    if len(df[df.chrom == chrom2]) == 0 or float(df[df.chrom == chrom2]['mean']) == 0.00:
         return nan
-    elif len(df[df.chrom == chrom1]) == 0:
+    elif len(df[df.chrom == chrom1]) == 0 or float(df[df.chrom == chrom1]['mean']) == 0.00:
         return 0.0
     else:
         return float(df[df.chrom == chrom1]['mean']) / float(df[df.chrom == chrom2]['mean'])
