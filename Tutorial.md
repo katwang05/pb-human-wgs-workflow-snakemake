@@ -305,10 +305,10 @@ mkdir smrtcells/ready/<sample_id>
 ```
 
 4. Put PacBio HiFi reads into their respective directories. The easiest way to do this is with a symlink. **Note: unaligned BAM and FASTQ filenames must be identifiable as HiFi reads, i.e. have the following format.** 
-   - regex for BAM: `/m\d{5}[Ue]?_\d{6}_\d{6}.(ccs|hifi_reads).bam`
+   - regex for BAM: `/m\d{5}U?e?_\d{6}_\d{6}.(ccs|hifi_reads).bam`
      - example: `m54119U_210108_012126.ccs.bam`
      - example: `m64013e_210917_004210.hifi_reads.bam`
-   - regex for FASTQ: `/m\d{5}[Ue]?_\d{6}_\d{6}.fastq.gz`
+   - regex for FASTQ: `/m\d{5}U?e?_\d{6}_\d{6}.fastq.gz`
      - example: `m54119U_210108_012126.fastq.gz`
      - example: `m64013e_210917_004210.fastq.gz`
   

@@ -14,7 +14,7 @@ all_chroms = config['ref']['autosomes'] + config['ref']['sex_chrom'] + config['r
 print(f"Processing sample {sample} with reference {ref}.")
 
 # scan samples/{sample}/aligned to generate a dict of aBAMs
-pattern = re.compile(r'samples/(?P<sample>[A-Za-z0-9_-]+)/aligned/(?P<movie>m\d{5}[Ue]?_\d{6}_\d{6})\.(?P<reference>.*).bam')
+pattern = re.compile(r'samples/(?P<sample>[A-Za-z0-9_-]+)/aligned/(?P<movie>m\d{5}U?e?_\d{6}_\d{6})\.(?P<reference>.*).bam')
 abam_dict = {}
 for infile in Path(f"samples/{sample}/aligned").glob('*.bam'):
     match = pattern.search(str(infile))
@@ -28,9 +28,9 @@ print(f"{sample} movies available: {movies}")
 
 # scan smrtcells/ready directory for uBAMs or FASTQs for hifiasm
 # uBAMs will have priority over FASTQs in downstream processes if both are available
-ubam_pattern = re.compile(r'smrtcells/ready/(?P<sample>[A-Za-z0-9_-]+)/(?P<movie>m\d{5}[Ue]?_\d{6}_\d{6}).(ccs|hifi_reads).bam')
+ubam_pattern = re.compile(r'smrtcells/ready/(?P<sample>[A-Za-z0-9_-]+)/(?P<movie>m\d{5}U?e?_\d{6}_\d{6}).(ccs|hifi_reads).bam')
 ubam_dict = {}
-fastq_pattern = re.compile(r'smrtcells/ready/(?P<sample>[A-Za-z0-9_-]+)/(?P<movie>m\d{5}[Ue]?_\d{6}_\d{6}).fastq.gz')
+fastq_pattern = re.compile(r'smrtcells/ready/(?P<sample>[A-Za-z0-9_-]+)/(?P<movie>m\d{5}U?e?_\d{6}_\d{6}).fastq.gz')
 fastq_dict = {}
 for infile in Path(f'smrtcells/ready/{sample}').glob('*.bam'):
     ubam_match = ubam_pattern.search(str(infile))

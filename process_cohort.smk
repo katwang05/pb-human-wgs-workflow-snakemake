@@ -1,4 +1,5 @@
 import os
+import sys
 import re
 import yaml
 from pathlib import Path
@@ -17,6 +18,8 @@ def get_samples(cohortyaml=config['cohort_yaml'], cohort_id=config['cohort']):
     for c in cohort_list:
         if c['id'] == cohort_id:
             break
+    else:
+        sys.exit(f"Cohort {cohort_id} not found in {cohortyaml}.")
     samples = []
     for affectedstatus in ['affecteds', 'unaffecteds']:
         if affectedstatus in c:
@@ -31,6 +34,8 @@ def get_trios(cohortyaml=config['cohort_yaml'], cohort_id=config['cohort']):
     for c in cohort_list:
         if c['id'] == cohort_id:
             break
+    else:
+        sys.exit(f"Cohort {cohort_id} not found in {cohortyaml}.")
     trio_dict = defaultdict(dict)
     for affectedstatus in ['affecteds', 'unaffecteds']:
         if affectedstatus in c:
@@ -69,9 +74,9 @@ else:
 
 # scan smrtcells/ready directory for uBAMs or FASTQs that are ready to process
 # uBAMs have priority over FASTQs in downstream processes if both are available
-ubam_pattern = re.compile(r'smrtcells/ready/(?P<sample>[A-Za-z0-9_-]+)/(?P<movie>m\d{5}[Ue]?_\d{6}_\d{6}).(ccs|hifi_reads).bam')
+ubam_pattern = re.compile(r'smrtcells/ready/(?P<sample>[A-Za-z0-9_-]+)/(?P<movie>m\d{5}U?e?_\d{6}_\d{6}).(ccs|hifi_reads).bam')
 ubam_dict = defaultdict(dict)
-fastq_pattern = re.compile(r'smrtcells/ready/(?P<sample>[A-Za-z0-9_-]+)/(?P<movie>m\d{5}[Ue]?_\d{6}_\d{6}).fastq.gz')
+fastq_pattern = re.compile(r'smrtcells/ready/(?P<sample>[A-Za-z0-9_-]+)/(?P<movie>m\d{5}U?e?_\d{6}_\d{6}).fastq.gz')
 fastq_dict = defaultdict(dict)
 for infile in Path('smrtcells/ready').glob('**/*.bam'):
     ubam_match = ubam_pattern.search(str(infile))

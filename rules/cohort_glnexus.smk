@@ -10,13 +10,15 @@ rule glnexus:
         scratch_dir = temp(directory(f"cohorts/{cohort}/glnexus/{cohort}.{ref}.GLnexus.DB/"))
     log: f"cohorts/{cohort}/logs/glnexus/{cohort}.{ref}.log"
     benchmark: f"cohorts/{cohort}/benchmarks/glnexus/{cohort}.{ref}.tsv"
+    params:
+        mem_gbytes = 192,
     container: f"docker://ghcr.io/dnanexus-rnd/glnexus:{config['GLNEXUS_VERSION']}"
     threads: 24
     message: f"Executing {{rule}}: Joint calling variants from {cohort} cohort."
     shell:
         """
         (rm -rf {output.scratch_dir} && \
-        glnexus_cli --threads {threads} \
+        glnexus_cli --threads {threads} --mem-gbytes {params.mem_gbytes} \
             --dir {output.scratch_dir} \
             --config DeepVariant_unfiltered {input.gvcf} > {output.bcf}) 2> {log}
         """
