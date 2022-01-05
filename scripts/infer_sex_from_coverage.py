@@ -4,9 +4,10 @@ Infer chromosomal sex from sequencing coverage ratios from GRCh38 alignments.
 """
 
 __author__ = "William Rowell"
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 
+import math
 import argparse
 import pandas as pd
 from numpy import nan, isnan
@@ -19,9 +20,9 @@ def import_mosdepth_summary(mosdepth_summary):
 
 def coverage_ratio(df, chrom1, chrom2):
     """Calculate the coverage ratio of chrom1:chrom2"""
-    if len(df[df.chrom == chrom2]) == 0 or float(df[df.chrom == chrom2]['mean']) == 0.00:
+    if len(df[df.chrom == chrom2]) == 0 or math.isclose(0.0, float(df[df.chrom == chrom2]['mean']), abs_tol=1e-9):
         return nan
-    elif len(df[df.chrom == chrom1]) == 0 or float(df[df.chrom == chrom1]['mean']) == 0.00:
+    elif len(df[df.chrom == chrom1]) == 0 or math.isclose(0.0, float(df[df.chrom == chrom1]['mean']), abs_tol=1e-9):
         return 0.0
     else:
         return float(df[df.chrom == chrom1]['mean']) / float(df[df.chrom == chrom2]['mean'])
