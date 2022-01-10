@@ -105,7 +105,7 @@ rule align_hifiasm:
                 | awk '{{ if ($1 !~ /^@/) \
                                 {{ Rct=split($1,R,"."); N=R[1]; for(i=2;i<Rct;i++) {{ N=N"."R[i]; }} print $0 "\tTG:Z:" N; }} \
                               else {{ print; }} }}' \
-                | samtools sort -@ {params.samtools_threads} > {output}) > {log} 2>&1
+                | samtools sort -@ {params.samtools_threads} -T $TMPDIR > {output}) > {log} 2>&1
         """
 
 
