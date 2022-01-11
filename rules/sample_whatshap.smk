@@ -172,12 +172,12 @@ rule merge_haplotagged_bams:
     conda: "envs/samtools.yaml"
     message: "Executing {rule}: Merging {input}."
     shell:
-        f"""
-        if [[ "{{input}}" =~ " " ]]
+        """
+        if [[ "{input}" =~ " " ]]
         then
             (samtools merge -@ 7 {output} {input}) > {log} 2>&1
         else
-            mv {{input}} {{output}}
+            mv {input} {output}
         fi
         """
 
