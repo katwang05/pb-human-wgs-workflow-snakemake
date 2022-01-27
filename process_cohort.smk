@@ -1,4 +1,3 @@
-import os
 import sys
 import re
 import yaml
@@ -92,7 +91,7 @@ for infile in Path('smrtcells/ready').glob('**/*.fastq.gz'):
 ubam_fastq_dict = {sample:list(set(list(ubam_dict[sample].keys()) + list(fastq_dict[sample].keys()))) for sample in list(ubam_dict.keys()) + list(fastq_dict.keys())}
 
 # scan samples/*/aligned to generate a dict-of-lists-of-movies for 
-pattern = re.compile(r'samples/(?P<sample>[A-Za-z0-9_-]+)/aligned/(?P<movie>m\d{5}[Ue]?_\d{6}_\d{6})\.(?P<reference>.*).bam')
+pattern = re.compile(r'samples/(?P<sample>[A-Za-z0-9_-]+)/aligned/(?P<movie>m\d{5}U?e?_\d{6}_\d{6})\.(?P<reference>.*).bam')
 movie_dict = defaultdict(list)
 abam_list = []
 for infile in Path(f"samples").glob('**/aligned/*.bam'):

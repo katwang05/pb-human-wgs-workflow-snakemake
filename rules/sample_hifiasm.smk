@@ -91,7 +91,8 @@ rule align_hifiasm:
         minimap2_args = "-L --secondary=no --eqx -ax asm5",
         minimap2_threads = 10,
         readgroup = f"@RG\\tID:{sample}_hifiasm\\tSM:{sample}",
-        samtools_threads = 3
+        samtools_threads = 3,
+        samtools_mem = "8G"
     threads: 16  # minimap2 + samtools(+1) + 2x awk + seqtk + cat
     conda: "envs/align_hifiasm.yaml"
     message: "Aligning {input.query} to {input.target}."
@@ -105,7 +106,7 @@ rule align_hifiasm:
                 | awk '{{ if ($1 !~ /^@/) \
                                 {{ Rct=split($1,R,"."); N=R[1]; for(i=2;i<Rct;i++) {{ N=N"."R[i]; }} print $0 "\tTG:Z:" N; }} \
                               else {{ print; }} }}' \
-                | samtools sort -@ {params.samtools_threads} > {output}) > {log} 2>&1
+                | samtools sort -@ {params.samtools_threads} -T $TMPDIR -m {params.samtools_mem} > {output}) > {log} 2>&1
         """
 
 
