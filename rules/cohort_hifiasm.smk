@@ -28,10 +28,9 @@ rule yak_count:
     log: f"cohorts/{cohort}/logs/yak/{{sample}}.yak.count.log"
     benchmark: f"cohorts/{cohort}/benchmarks/yak/{{sample}}.yak.tsv"
     conda: "envs/yak.yaml"
-    params: "-b37"
     threads: 32
     message: "Executing {rule}: Counting k-mers in {input}."
-    shell: "(yak count -t {threads} {params} -o {output} {input}) > {log} 2>&1"
+    shell: "(yak count -t {threads} -o {output} {input}) > {log} 2>&1"
 
 
 rule hifiasm_assemble:
