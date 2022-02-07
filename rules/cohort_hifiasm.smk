@@ -61,13 +61,14 @@ rule hifiasm_assemble:
     params: 
         prefix = f"cohorts/{cohort}/hifiasm/{{sample}}.asm",
         parent1 = lambda wildcards: trio_dict[wildcards.sample]['parent1'],
-        parent2 = lambda wildcards: trio_dict[wildcards.sample]['parent2']
+        parent2 = lambda wildcards: trio_dict[wildcards.sample]['parent2'],
+        extra = "-c1 -d1"
     threads: 48
     message: "Executing {rule}: Assembling sample {wildcards.sample} from {input.fasta} and parental k-mers."
     shell:
             """
             (
-                hifiasm -o {params.prefix} -t {threads} \
+                hifiasm -o {params.prefix} -t {threads} {params.extra} \
                     -1 {input.parent1_yak} -2 {input.parent2_yak} {input.fasta} \
                 && (echo -e "hap1\t{params.parent1}\nhap2\t{params.parent2}" > cohorts/{cohort}/hifiasm/{wildcards.sample}.asm.key.txt) \
             ) > {log} 2>&1
