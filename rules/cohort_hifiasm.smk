@@ -25,7 +25,7 @@ rule seqtk_fastq_to_fasta:
 rule yak_count:
     input: lambda wildcards: expand(f"cohorts/{cohort}/fasta/{wildcards.sample}/{{movie}}.fasta", movie=ubam_fastq_dict[wildcards.sample])
     output: temp(f"cohorts/{cohort}/yak/{{sample}}.yak")
-    log: f"cohorts/{cohort}/logs/yak/{{sample}}.yak.log"
+    log: f"cohorts/{cohort}/logs/yak/{{sample}}.yak.count.log"
     benchmark: f"cohorts/{cohort}/benchmarks/yak/{{sample}}.yak.tsv"
     conda: "envs/yak.yaml"
     params: "-b37"
@@ -93,6 +93,18 @@ rule bgzip_fasta:
     conda: "envs/htslib.yaml"
     message: "Executing {rule}: Compressing {input}."
     shell: "(bgzip --threads {threads} {input}) > {log} 2>&1"
+
+
+rule yak_trioeval:
+    input: 
+        parent1_yak = lambda wildcards: f"cohorts/{cohort}/yak/{trio_dict[wildcards.sample]['parent1']}.yak",
+        parent2_yak = lambda wildcards: f"cohorts/{cohort}/yak/{trio_dict[wildcards.sample]['parent2']}.yak",
+        fasta = f"cohorts/{cohort}/hifiasm/{{sample}}.asm.dip.{{infix}}.fasta.gz"
+    output: f"cohorts/{cohort}/hifiasm/{{sample}}.asm.dip.{{infix}}.fasta.trioeval.txt"
+    log: f"cohorts/{cohort}/logs/yak/{{sample}}.yak.trioeval.log"
+    conda: "envs/yak.yaml"
+    threads: 16
+    shell: "(yak trioeval -t {threads} {input.parent1_yak} {input.parent2_yak} {input.fasta} > {output}) > {log} 2>&1"
 
 
 rule asm_stats:

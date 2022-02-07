@@ -24,4 +24,5 @@ align_hifiasm:
   cpus: 16
 samtools_index_bam:
   cpus: 4
-  
+yak_trioeval:
+  cpus: 16
