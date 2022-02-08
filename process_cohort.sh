@@ -18,20 +18,11 @@ lockfile -r 0 ${LOCKFILE} || exit 1
 trap "rm -f ${LOCKFILE}; exit" SIGINT SIGTERM ERR EXIT
 
 # execute snakemake
-snakemake --reason \
-    --keep-going \
+snakemake \
     --printshellcmds \
     --config cohort=${COHORT} \
     --nolock \
     --local-cores 4 \
-    --jobs 500 \
-    --max-jobs-per-second 1 \
-    --use-conda --conda-frontend mamba \
     --use-singularity --singularity-args '--nv ' \
-    --latency-wait 90 \
-    --cluster-config workflow/process_cohort.cluster.yaml \
-    --cluster "sbatch --account={cluster.account} \
-                      --partition={cluster.partition} \
-                      --cpus-per-task={cluster.cpus} \
-                      --output={cluster.out} {cluster.extra} " \
+    --profile workflow/profiles/slurm \
     --snakefile workflow/process_cohort.smk

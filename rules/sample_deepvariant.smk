@@ -16,6 +16,8 @@ rule deepvariant_make_examples_round1:
         pileup_image_width = 199,
         shard = lambda wildcards: wildcards.shard,
         reads = ','.join(abams)
+    resources:
+        extra = '--constraint=avx512'
     message: "Executing {rule}: DeepVariant make_examples {wildcards.shard} for {input.bams}."
     shell:
         f"""
@@ -43,6 +45,9 @@ rule deepvariant_call_variants_gpu_round1:
     container: f"docker://google/deepvariant:{config['DEEPVARIANT_VERSION']}"
     params: model = "/opt/models/pacbio/model.ckpt"
     threads: 8
+    resources:
+        partition = 'ml',
+        extra = '--gpus=1'
     message: "Executing {rule}: DeepVariant call_variants for {input}."
     shell:
         f"""
@@ -65,6 +70,8 @@ rule deepvariant_postprocess_variants_round1:
     benchmark: f"samples/{sample}/benchmarks/deepvariant_intermediate/postprocess_variants/{sample}.{ref}.tsv"
     container: f"docker://google/deepvariant:{config['DEEPVARIANT_VERSION']}"
     threads: 4
+    resources: 
+        extra = '--constraint=avx512'
     message: "Executing {rule}: DeepVariant postprocess_variants for {input.tfrecord}."
     shell:
         """
@@ -94,6 +101,8 @@ rule deepvariant_make_examples_round2:
         pileup_image_width = 199,
         shard = lambda wildcards: wildcards.shard,
         reads = ','.join(haplotagged_abams)
+    resources: 
+        extra = '--constraint=avx512'
     message: "Executing {rule}: DeepVariant make_examples {wildcards.shard} for {input.bams}."
     shell:
         f"""
@@ -123,6 +132,9 @@ rule deepvariant_call_variants_gpu_round2:
     params: model = "/opt/models/pacbio/model.ckpt"
     message: "Executing {rule}: DeepVariant call_variants for {input}."
     threads: 8
+    resources:
+        partition = 'ml',
+        extra = '--gpus=1'
     shell:
         f"""
         (echo "CUDA_VISIBLE_DEVICES=" $CUDA_VISIBLE_DEVICES; \
@@ -148,8 +160,10 @@ rule deepvariant_postprocess_variants_round2:
     log: f"samples/{sample}/logs/deepvariant/postprocess_variants/{sample}.{ref}.log"
     benchmark: f"samples/{sample}/benchmarks/deepvariant/postprocess_variants/{sample}.{ref}.tsv"
     container: f"docker://google/deepvariant:{config['DEEPVARIANT_VERSION']}"
-    message: "Executing {rule}: DeepVariant postprocess_variants for {input.tfrecord}."
     threads: 4
+    resources: 
+        extra = '--constraint=avx512'
+    message: "Executing {rule}: DeepVariant postprocess_variants for {input.tfrecord}."
     shell:
         f"""
         (/opt/deepvariant/bin/postprocess_variants \
