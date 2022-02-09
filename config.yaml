@@ -21,9 +21,6 @@ cohort_targets:
   - slivar  # req: deepvariant, whatshap in config['sample_targets']
   - trio_assembly
 
-# temporary storage
-tmpdir: '/tmp'
-
 # jellyfish and genomescope
 kmer_length: 21
 
