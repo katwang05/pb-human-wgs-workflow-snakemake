@@ -44,6 +44,7 @@ The primary goals of this workflow are variant discovery, variant calling, and a
 | [pbsv](https://github.com/PacificBiosciences/pbsv)              | call structural variants |
 | [DeepVariant](https://github.com/google/deepvariant)            | call small variants |
 | [WhatsHap](https://github.com/whatshap/whatshap/)               | phase small variants and generate merged, haplotagged BAM|
+| [BCFtools RoH](https://samtools.github.io/bcftools/howtos/roh-calling.html)| detect regions of autozygosity in merged, haplotagged BAM using a hidden Markov model |
 | [mosdepth](https://github.com/brentp/mosdepth)        | calculate aligned coverage depth of merged, haplotagged BAM |
 | [tandem-genotypes](https://github.com/mcfrith/tandem-genotypes), [scripts/check_tandem_repeat_coverage.py](https://github.com/PacificBiosciences/pb-human-wgs-workflow-snakemake/blob/main/scripts/check_tandem_repeat_coverage.py) | genotype known tandem repeat expansions associated with disease |
 | [hifiasm](https://github.com/chhylp123/hifiasm)                 | assemble reads |
@@ -462,6 +463,26 @@ The following are some of the key output files from these workflows. The haploty
     - Summary stats for each haplotype
   - `hifiasm/*.asm.GRCh38.bam` and `.bai`
     - Genome assembly aligned to the reference + associated index file (.bai)
+
+[Back to top](#TOP)
+
+---
+
+## Troubleshooting
+
+This section includes problems frequently encountered by users of this pipeline. Please file a repo issue or contact one of the repo contributors if the following troubleshooting tips don't address your concerns.
+
+**Problem:** Workflow won't run and gives error `snakemake: command not found`  
+**Solution:** Make sure the conda environment is installed and activated before trying to run the workflow. Instructions [here](#5-run-analysis).
+
+**Problem:** Workflow won't run and gives error `lockfile: Try praying, giving up on "samples/<sample_id>/process_sample.lock"`  
+**Solution:** If the workflows are still running or a job failed, the lockfile may not have been properly removed. Either wait for the workflow to finish or, if the job failed, manually remove the lockfile. This error can also be caused if the input file folder doesn't exist. For example, if you try to run `process_sample` without first running `process_smrtcells`.
+
+**Problem:** Trio assembly has one haplotype that is significantly larger than the other  
+**Solution:** It's possible that parental HiFi coverage for at least one parent/haplotype is insufficient for the trio binning step in hifiasm. Consider sequencing parents to greater depth.
+
+**Problem:** The `process_smrtcells` workflow starts, but no jobs are executed and it says `uBAMs available for samples: [] FASTQs available for samples: []`  
+**Solution:**  Make sure you've provided input files in `smrtcells/ready/<sample_id>` The folder <sample_id> must be created with `mkdir` (not symlinked) although files inside this folder can be symlinked.
 
 [Back to top](#TOP)
 
