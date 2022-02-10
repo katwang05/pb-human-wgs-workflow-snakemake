@@ -127,7 +127,7 @@ include: 'rules/cohort_hifiasm.smk'
 if 'trio_assembly' in config['cohort_targets']:
     # assembly and stats
     targets.extend([f"cohorts/{cohort}/hifiasm/{trio}.asm.dip.{infix}.{suffix}"
-                for suffix in ['fasta.gz', 'fasta.stats.txt']
+                for suffix in ['fasta.gz', 'fasta.stats.txt', 'fasta.trioeval.txt']
                 for infix in ['hap1.p_ctg', 'hap2.p_ctg']
                 for trio in trio_dict.keys()])
     # assembly alignments
