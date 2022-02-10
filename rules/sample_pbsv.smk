@@ -39,7 +39,7 @@ rule pbsv_call:
     benchmark: f"samples/{sample}/benchmarks/pbsv/call/{sample}.{ref}.{{region}}.tsv"
     params:
         region = lambda wildcards: wildcards.region,
-        extra = "--hifi -m 20",
+        extra = "--hifi -m 20 " + config['pbsv_call_extra'],
         loglevel = "INFO"
     threads: 8
     conda: "envs/pbsv.yaml"
