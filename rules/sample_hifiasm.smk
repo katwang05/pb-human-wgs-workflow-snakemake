@@ -88,7 +88,7 @@ rule align_hifiasm:
     benchmark: f"samples/{sample}/benchmarks/align_hifiasm/{sample}.asm.{ref}.tsv"
     params:
         minimap2_args = "-L --secondary=no --eqx -ax asm5",
-        minimap2_threads = 10,
+        minimap2_threads = 12,
         readgroup = f"@RG\\tID:{sample}_hifiasm\\tSM:{sample}",
         samtools_threads = 3,
         samtools_mem = "8G"
