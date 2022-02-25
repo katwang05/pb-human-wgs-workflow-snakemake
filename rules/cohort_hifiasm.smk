@@ -102,7 +102,7 @@ rule yak_trioeval:
         parent2_yak = lambda wildcards: f"cohorts/{cohort}/yak/{trio_dict[wildcards.sample]['parent2']}.yak",
         fasta = f"cohorts/{cohort}/hifiasm/{{sample}}.asm.dip.{{infix}}.fasta.gz"
     output: f"cohorts/{cohort}/hifiasm/{{sample}}.asm.dip.{{infix}}.fasta.trioeval.txt"
-    log: f"cohorts/{cohort}/logs/yak/{{sample}}.yak.trioeval.log"
+    log: f"cohorts/{cohort}/logs/yak/{{sample}}.asm.dip.{{infix}}.fasta.trioeval.log"
     conda: "envs/yak.yaml"
     threads: 16
     shell: "(yak trioeval -t {threads} {input.parent1_yak} {input.parent2_yak} {input.fasta} > {output}) > {log} 2>&1"
