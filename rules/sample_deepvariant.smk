@@ -19,7 +19,7 @@ rule deepvariant_make_examples:
         vsc_min_fraction_indels = "0.12",
         pileup_image_width = 199,
         shard = lambda wildcards: wildcards.shard,
-        reads = ','.join(haplotagged_abams)
+        reads = ','.join(abams)
     message: "Executing {rule}: DeepVariant make_examples {wildcards.shard} for {input.bams}."
     shell:
         f"""
