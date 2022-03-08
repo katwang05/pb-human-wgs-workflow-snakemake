@@ -9,9 +9,7 @@ pbsv_call:
   cpus: 8
 bgzip_vcf:
   cpus: 2
-deepvariant_round1:
-  cpus: 60
-deepvariant_round2:
+deepvariant:
   cpus: 60
 deepvariant_bcftools_stats:
   cpus: 4
