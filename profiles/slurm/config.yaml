@@ -1,11 +1,14 @@
 reason: true
 rerun-incomplete: true
 keep-going: true
+printshellcmds: true
 jobs: 500
 max-jobs-per-second: 1
 use-conda: true
 conda-frontend: mamba
 latency-wait: 120
+use-singularity: true
+singularity-args: '--nv '
 cluster: sbatch --account={resources.account}
                 --partition={resources.partition}
                 --cpus-per-task={threads}
@@ -13,7 +16,6 @@ cluster: sbatch --account={resources.account}
 default-resources: 
   - account='100humans'
   - partition='compute'
-  - tmpdir=system_tmpdir
   - threads=1
   - out='cluster_logs/slurm-%x-%j-%N.out'
   - extra=''

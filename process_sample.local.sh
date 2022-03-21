@@ -1,13 +1,4 @@
 #!/bin/bash
-#$ -A 100humans
-#$ -cwd
-#$ -V
-#$ -j y
-#$ -S /bin/bash
-#$ -q default
-#$ -pe smp 4
-#$ -o ./cluster_logs/sge-$JOB_NAME-$JOB_ID-$HOSTNAME.out
-#$ -e ./cluster_logs/sge-$JOB_NAME-$JOB_ID-$HOSTNAME.err
 
 SAMPLE=$1
 
@@ -24,11 +15,19 @@ source workflow/variables.env
 export SINGULARITY_TMPDIR="$TEMP"
 export SINGULARITY_BIND="$TEMP"
 
+# make logs directory if it doesn't exist
+mkdir -p logs
+
 # execute snakemake
-snakemake \
+snakemake --reason \
+    --rerun-incomplete \
+    --keep-going \
+    --cores \
+    --printshellcmds \
     --config sample=${SAMPLE} \
     --nolock \
-    --local-cores 4 \
-    --profile workflow/profiles/sge \
+    --use-conda --conda-frontend mamba \
+    --use-singularity \
     --default-resources "tmpdir='${TEMP}'" \
-    --snakefile workflow/process_sample.smk
+    --snakefile workflow/process_sample.smk \
+    2>&1 | tee "logs/process_sample.${SAMPLE}.$(date -d 'today' +'%Y%m%d%H%M').log"

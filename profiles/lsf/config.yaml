@@ -1,11 +1,14 @@
 reason: true
 rerun-incomplete: true
 keep-going: true
+printshellcmds: true
 jobs: 500
 max-jobs-per-second: 1
 use-conda: true
 conda-frontend: mamba
 latency-wait: 120
+use-singularity: true
+singularity-args: '--nv '
 cluster: bsub -cwd 
               -q {resources.partition}
               -n {threads}
@@ -13,7 +16,6 @@ cluster: bsub -cwd
               -e {resources.err} {resources.extra}
 default-resources: 
   - partition='default'
-  - tmpdir=system_tmpdir
   - threads=1
   - out='./cluster_logs/lsf-$LSB_JOBNAME-$LSB_JOBID-$HOSTNAME.out'
   - err='./cluster_logs/lsf-$LSB_JOBNAME-$LSB_JOBID-$HOSTNAME.err'

@@ -4,7 +4,7 @@ from pathlib import Path
 
 configfile: "workflow/reference.yaml"         # reference information
 configfile: "workflow/config.yaml"            # general configuration
-shell.prefix(f"set -o pipefail; umask 002; export SINGULARITY_TMPDIR=$TMPDIR; ")  # set g+w
+shell.prefix(f"set -o pipefail; umask 002; ")  # set g+w
 
 
 # sample will be provided at command line with `--config sample=$SAMPLE`

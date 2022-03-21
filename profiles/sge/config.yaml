@@ -1,11 +1,14 @@
 reason: true
 rerun-incomplete: true
 keep-going: true
+printshellcmds: true
 jobs: 500
 max-jobs-per-second: 1
 use-conda: true
 conda-frontend: mamba
 latency-wait: 120
+use-singularity: true
+singularity-args: '--nv '
 cluster: qsub -j y -cwd -V
               -A {resources.account}
               -q {resources.partition}
@@ -15,7 +18,6 @@ cluster: qsub -j y -cwd -V
 default-resources: 
   - account='100humans'
   - partition='default'
-  - tmpdir=system_tmpdir
   - threads=1
   - out='./cluster_logs/sge-$JOB_NAME-$JOB_ID-$HOSTNAME.out'
   - err='./cluster_logs/sge-$JOB_NAME-$JOB_ID-$HOSTNAME.err'
