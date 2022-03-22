@@ -5,16 +5,6 @@ cpu_only = config.get('cpu_only', False)
 deepvariant_threads = 1000 if cpu_only else 8
 deepvariant_version = config['DEEPVARIANT_CPU_VERSION'] if cpu_only else config['DEEPVARIANT_GPU_VERSION']
 
-# if running locally, set deepvariant version to CPU-only and change threads to 1000 (i.e. use all available cores)
-run_local = config.get('run_local', False)
-if run_local:
-    deepvariant_version = config['DEEPVARIANT_CPU_VERSION']
-    deepvariant_threads = 1000
-else:
-    deepvariant_version = config['DEEPVARIANT_GPU_VERSION']
-    deepvariant_threads = 8
-
-
 rule deepvariant_make_examples_round1:
     input:
         bams = abams,
