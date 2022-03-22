@@ -11,7 +11,7 @@ sample_targets:
   - whatshap  # req: deepvariant
   - coverage  # req: whatshap
   - kmers  # req: kmers in config['smrtcells_targets']
- # - assembly
+  - assembly
   - tandem-genotypes  # req: whatshap
 
 cohort_targets:
