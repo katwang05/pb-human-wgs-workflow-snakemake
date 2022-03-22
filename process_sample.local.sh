@@ -20,5 +20,6 @@ mkdir -p logs
 snakemake \
     --config sample=${SAMPLE} cpu_only=True\
     --nolock \
+    --profile workflow/profiles/local \
     --snakefile workflow/process_sample.smk \
     2>&1 | tee "logs/process_sample.${SAMPLE}.$(date -d 'today' +'%Y%m%d%H%M').log"

@@ -21,5 +21,6 @@ mkdir -p logs
 snakemake \
     --config cohort=${COHORT} \
     --nolock \
+    --profile workflow/profiles/local \
     --snakefile workflow/process_cohort.smk \
     2>&1 | tee "logs/process_cohort.${COHORT}.$(date -d 'today' +'%Y%m%d%H%M').log"

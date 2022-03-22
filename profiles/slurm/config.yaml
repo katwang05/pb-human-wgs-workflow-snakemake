@@ -2,7 +2,7 @@ reason: true
 rerun-incomplete: true
 keep-going: true
 printshellcmds: true
-local-cores: $SLURM_CPUS_PER_TASK
+local-cores: 4
 jobs: 500
 max-jobs-per-second: 1
 use-conda: true
