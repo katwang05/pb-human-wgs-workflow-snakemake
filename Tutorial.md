@@ -151,7 +151,7 @@ Now you can add your input files (unaligned PacBio HiFi reads) to the correct lo
 mkdir smrtcells/ready/<sample_id>
 
 
-# put one or more unaligned PacBio HiFi reads files in the correct sample directory with a symlink 
+# add one or more unaligned PacBio HiFi reads files in the correct sample directory with a symlink 
 ln -s /path/to/HiFi/BAM/or/FASTQ/<hifi_reads_filename> smrtcells/ready/<sample_id>/
 ```
 
@@ -252,38 +252,18 @@ The following configuration files should not be modified unless you're confident
 
 ### 4. Cluster configuration
 
-The following files **may need to be edited** based on the specifics of your HPC cluster. Additional flags may be necessary for job submission and you may need to talk to your HPC administrator if the default cluster configuration files aren’t working.
+We have provided sample submission scripts for three different schedulers (SLURM, SGE, LSF) as well as a local execution option. The following files **may need to be edited** based on the specifics of your HPC cluster. Additional flags may be necessary for job submission and you may need to talk to your HPC administrator if the example scripts aren’t working.
 
-#### Slurm
-
-- [process_smrtcells.sh](process_smrtcells.sh)
-- [process_sample.sh](process_sample.sh)
-- [process_cohort.sh](process_cohort.sh)
-- [profiles/slurm/config.yaml](profiles/slurm/config.yaml)
-- [rules/sample_deepvariant.smk](rules/sample_deepvariant.smk)
-  - GPU requirements and node constraints are specified in rules
-
-#### SGE
-
-- [process_smrtcells.sge.sh](process_smrtcells.sge.sh)
-- [process_sample.sge.sh](process_sample.sge.sh)
-- [process_cohort.sge.sh](process_cohort.sge.sh)
-- [profiles/sge/config.yaml](profiles/sge/config.yaml)
-- [rules/sample_deepvariant.smk](rules/sample_deepvariant.smk)
-  - GPU requirements and node constraints are specified in rules using slurm flags
-
-#### LSF
-
-- [process_smrtcells.lsf.sh](process_smrtcells.lsf.sh)
-- [process_sample.lsf.sh](process_sample.lsf.sh)
-- [process_cohort.lsf.sh](process_cohort.lsf.sh)
-- [profiles/slurm/config.yaml](profiles/lsf/config.yaml)
-- [rules/sample_deepvariant.smk](rules/sample_deepvariant.smk)
-  - GPU requirements and node constraints are specified in rules using slurm flags
+- `process_smrtcells.(slurm|sge|lsf|local).sh`
+- `process_sample.(slurm|sge|lsf|local).sh`]
+- `process_cohort.(slurm|sge|lsf|local).sh`
+- `profiles/(slurm|sge|lsf|local)/config.yaml` # snakemake configuration [profiles](https://snakemake.readthedocs.io/en/stable/executing/cli.html#profiles)
+- `rules/sample_deepvariant.smk` # GPU and singularity constraints specified within rules
+- `variables.env` # environment variables such as TMPDIR and cluster partition
 
 > **WARNING**:
 >
-> - Job scripts and configuration for SGE and LSF task managers are included as a courtesy, but are not regularly tested or maintained.
+> - Job scripts and configuration for SGE and LSF schedulers are included as a courtesy, but are not regularly tested or maintained.
 > - Unintential or misinformed changes to these files may prevent the workflows from running properly.
 
 [Back to top](#TOP)
@@ -297,9 +277,6 @@ The following instructions are specific to a slurm cluster (i.e. `sbatch`). User
 Do not try running an anlysis until you have completed the previous steps!
 
 ```text
-# confirm that you're in the analysis directory you created (parent directory of workflow)
-cd <directory_name>
-
 # create conda environment
 # you only need to create this environment one time
 conda env create --file workflow/environment.yaml
@@ -307,16 +284,42 @@ conda env create --file workflow/environment.yaml
 # activate conda environment
 conda activate pb-human-wgs-workflow
 
+# confirm that you're in the analysis directory you created (parent directory of workflow)
+
 # run process_smrtcells on all samples in smrtcells/ready
-sbatch workflow/process_smrtcells.sh
+sbatch workflow/process_smrtcells.slurm.sh
 
 # process_smrtcells must finish before launching next step!
 # run process_sample on a single sample
-sbatch workflow/process_sample.sh <sample_id>
+sbatch workflow/process_sample.slurm.sh <sample_id>
 
 # process_smrtcells & process_sample must finish for all samples in cohort before next step!
 # run process_cohort on a single cohort described in cohort.yaml
-sbatch workflow/process_cohort.sh <cohort_id>
+sbatch workflow/process_cohort.slurm.sh <cohort_id>
+```
+
+For local execution:
+
+```text
+# create conda environment
+# you only need to create this environment one time
+conda env create --file workflow/environment.yaml
+
+# activate conda environment
+conda activate pb-human-wgs-workflow
+
+# confirm that you're in the analysis directory you created (parent directory of workflow)
+
+# run process_smrtcells on all samples in smrtcells/ready
+bash workflow/process_smrtcells.local.sh
+
+# process_smrtcells must finish before launching next step!
+# run process_sample on a single sample
+sbatch workflow/process_sample.local.sh <sample_id>
+
+# process_smrtcells & process_sample must finish for all samples in cohort before next step!
+# run process_cohort on a single cohort described in cohort.yaml
+bash workflow/process_cohort.local.sh <cohort_id>
 ```
 
 > **WARNING**:
@@ -432,6 +435,7 @@ cohorts/<cohort_id>
 ├── benchmarks
 ├── hifiasm   # only produced if trios present in cohort
 ├── logs
+├── pbsv  # only produced if cohort consists of >1 sample
 ├── slivar
 └── svpack
 
@@ -483,6 +487,12 @@ This section includes problems frequently encountered by users of this pipeline.
 
 **Problem:** The `process_smrtcells` workflow starts, but no jobs are executed and it says `uBAMs available for samples: [] FASTQs available for samples: []`  
 **Solution:**  Make sure you've provided input files in `smrtcells/ready/<sample_id>` The folder <sample_id> must be created with `mkdir` (not symlinked) although files inside this folder can be symlinked.
+
+**Problem:** I don't have access to GPUs  
+**Solution:**  The local execution launch scripts are CPU-only, so one option is to follow instructions for local execution. Alternatively, if you need to run this workflow on a cluster, simply add `cpu_only: True` to `workflow/config.yaml`. Additional changes to resources like threads/cores may be required if jobs fail to finish.
+
+**Problem:** No space left on device  
+**Solution:** Change the TMPDIR variable in `workflow/variables.env` to a directory that has sufficient space for temporary files. You may need to clean out your temporary file directory.
 
 [Back to top](#TOP)
 
