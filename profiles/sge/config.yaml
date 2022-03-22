@@ -2,6 +2,7 @@ reason: true
 rerun-incomplete: true
 keep-going: true
 printshellcmds: true
+local-cores: $NSLOTS
 jobs: 500
 max-jobs-per-second: 1
 use-conda: true
@@ -16,8 +17,9 @@ cluster: qsub -j y -cwd -V
               -o {resources.out}
               -e {resources.err} {resources.extra}
 default-resources: 
-  - account='100humans'
-  - partition='default'
+  - account='$ACCOUNT'
+  - partition='$PARTITION'
+  - tmpdir='$TMPDIR'
   - threads=1
   - out='./cluster_logs/sge-$JOB_NAME-$JOB_ID-$HOSTNAME.out'
   - err='./cluster_logs/sge-$JOB_NAME-$JOB_ID-$HOSTNAME.err'

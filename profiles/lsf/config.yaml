@@ -2,6 +2,7 @@ reason: true
 rerun-incomplete: true
 keep-going: true
 printshellcmds: true
+local-cores: $LSB_DJOB_NUMPROC
 jobs: 500
 max-jobs-per-second: 1
 use-conda: true
@@ -15,7 +16,8 @@ cluster: bsub -cwd
               -o {resources.out}
               -e {resources.err} {resources.extra}
 default-resources: 
-  - partition='default'
+  - partition='$PARTITION'
+  - tmpdir='$TMPDIR'
   - threads=1
   - out='./cluster_logs/lsf-$LSB_JOBNAME-$LSB_JOBID-$HOSTNAME.out'
   - err='./cluster_logs/lsf-$LSB_JOBNAME-$LSB_JOBID-$HOSTNAME.err'

@@ -17,16 +17,12 @@ LOCKFILE=cohorts/${COHORT}/process_cohort.lock
 lockfile -r 0 ${LOCKFILE} || exit 1
 trap "rm -f ${LOCKFILE}; exit" SIGINT SIGTERM ERR EXIT
 
-# set singularity temporary directory
+# get variables from workflow/variables.env
 source workflow/variables.env
-export SINGULARITY_TMPDIR="$TEMP"
-export SINGULARITY_BIND="$TEMP"
 
 # execute snakemake
 snakemake \
     --config cohort=${COHORT} \
     --nolock \
-    --local-cores 4 \
     --profile workflow/profiles/slurm \
-    --default-resources "tmpdir='${TEMP}'" \
     --snakefile workflow/process_cohort.smk

@@ -1,0 +1,10 @@
+reason: true
+rerun-incomplete: true
+keep-going: true
+printshellcmds: true
+cores: all
+use-conda: true
+conda-frontend: mamba
+use-singularity: true
+default-resources: 
+  - tmpdir='$TMPDIR'

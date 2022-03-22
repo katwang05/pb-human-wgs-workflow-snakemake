@@ -2,6 +2,7 @@ reason: true
 rerun-incomplete: true
 keep-going: true
 printshellcmds: true
+local-cores: $SLURM_CPUS_PER_TASK
 jobs: 500
 max-jobs-per-second: 1
 use-conda: true
@@ -13,9 +14,10 @@ cluster: sbatch --account={resources.account}
                 --partition={resources.partition}
                 --cpus-per-task={threads}
                 --output={resources.out} {resources.extra}
-default-resources: 
-  - account='100humans'
-  - partition='compute'
+default-resources:
+  - account='$ACCOUNT'
+  - partition='$PARTITION'
+  - tmpdir='$TMPDIR'
   - threads=1
   - out='cluster_logs/slurm-%x-%j-%N.out'
   - extra=''

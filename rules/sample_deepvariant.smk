@@ -1,5 +1,9 @@
 shards = [f"{x:05}" for x in range(config['N_SHARDS'])]
 
+# for gpu rules, if running as cpu_only set threads to high number (1000) to ensure other jobs aren't started at the same time
+cpu_only = config.get('cpu_only', False)
+deepvariant_threads = 1000 if cpu_only else 8
+deepvariant_version = config['DEEPVARIANT_CPU_VERSION'] if cpu_only else config['DEEPVARIANT_GPU_VERSION']
 
 rule deepvariant_make_examples_round1:
     input:
@@ -10,7 +14,7 @@ rule deepvariant_make_examples_round1:
         tfrecord = temp(f"samples/{sample}/deepvariant_intermediate/examples/examples.tfrecord-{{shard}}-of-{config['N_SHARDS']:05}.gz")
     log: f"samples/{sample}/logs/deepvariant_intermediate/make_examples/{sample}.{ref}.{{shard}}-of-{config['N_SHARDS']:05}.log"
     benchmark: f"samples/{sample}/benchmarks/deepvariant_intermediate/make_examples/{sample}.{ref}.{{shard}}-of-{config['N_SHARDS']:05}.tsv"
-    container: f"docker://google/deepvariant:{config['DEEPVARIANT_VERSION']}"
+    container: f"docker://google/deepvariant:{deepvariant_version}"
     params:
         vsc_min_fraction_indels = "0.12",
         pileup_image_width = 199,
@@ -42,9 +46,9 @@ rule deepvariant_call_variants_gpu_round1:
     output: temp(f"samples/{sample}/deepvariant_intermediate/{sample}.{ref}.call_variants_output.tfrecord.gz")
     log: f"samples/{sample}/logs/deepvariant_intermediate/call_variants/{sample}.{ref}.log"
     benchmark: f"samples/{sample}/benchmarks/deepvariant_intermediate/call_variants/{sample}.{ref}.tsv"
-    container: f"docker://google/deepvariant:{config['DEEPVARIANT_VERSION']}"
+    container: f"docker://google/deepvariant:{deepvariant_version}"
     params: model = "/opt/models/pacbio/model.ckpt"
-    threads: 8
+    threads: deepvariant_threads
     resources:
         partition = 'ml',
         extra = '--gpus=1'
@@ -68,7 +72,7 @@ rule deepvariant_postprocess_variants_round1:
         report = f"samples/{sample}/deepvariant_intermediate/{sample}.{ref}.deepvariant.visual_report.html"
     log: f"samples/{sample}/logs/deepvariant_intermediate/postprocess_variants/{sample}.{ref}.log"
     benchmark: f"samples/{sample}/benchmarks/deepvariant_intermediate/postprocess_variants/{sample}.{ref}.tsv"
-    container: f"docker://google/deepvariant:{config['DEEPVARIANT_VERSION']}"
+    container: f"docker://google/deepvariant:{deepvariant_version}"
     threads: 4
     resources: 
         extra = '--constraint=avx512'
@@ -95,7 +99,7 @@ rule deepvariant_make_examples_round2:
         nonvariant_site_tfrecord = temp(f"samples/{sample}/deepvariant/examples/gvcf.tfrecord-{{shard}}-of-{config['N_SHARDS']:05}.gz")
     log: f"samples/{sample}/logs/deepvariant/make_examples/{sample}.{ref}.{{shard}}-of-{config['N_SHARDS']:05}.log"
     benchmark: f"samples/{sample}/benchmarks/deepvariant/make_examples/{sample}.{ref}.{{shard}}-of-{config['N_SHARDS']:05}.tsv"
-    container: f"docker://google/deepvariant:{config['DEEPVARIANT_VERSION']}"
+    container: f"docker://google/deepvariant:{deepvariant_version}"
     params:
         vsc_min_fraction_indels = "0.12",
         pileup_image_width = 199,
@@ -128,10 +132,10 @@ rule deepvariant_call_variants_gpu_round2:
     output: temp(f"samples/{sample}/deepvariant/{sample}.{ref}.call_variants_output.tfrecord.gz")
     log: f"samples/{sample}/logs/deepvariant/call_variants/{sample}.{ref}.log"
     benchmark: f"samples/{sample}/benchmarks/deepvariant/call_variants/{sample}.{ref}.tsv"
-    container: f"docker://google/deepvariant:{config['DEEPVARIANT_VERSION']}"
+    container: f"docker://google/deepvariant:{deepvariant_version}"
     params: model = "/opt/models/pacbio/model.ckpt"
     message: "Executing {rule}: DeepVariant call_variants for {input}."
-    threads: 8
+    threads: deepvariant_threads
     resources:
         partition = 'ml',
         extra = '--gpus=1'
@@ -159,7 +163,7 @@ rule deepvariant_postprocess_variants_round2:
         report = f"samples/{sample}/deepvariant/{sample}.{ref}.deepvariant.visual_report.html"
     log: f"samples/{sample}/logs/deepvariant/postprocess_variants/{sample}.{ref}.log"
     benchmark: f"samples/{sample}/benchmarks/deepvariant/postprocess_variants/{sample}.{ref}.tsv"
-    container: f"docker://google/deepvariant:{config['DEEPVARIANT_VERSION']}"
+    container: f"docker://google/deepvariant:{deepvariant_version}"
     threads: 4
     resources: 
         extra = '--constraint=avx512'
