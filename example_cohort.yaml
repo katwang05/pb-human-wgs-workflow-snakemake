@@ -1,20 +1,34 @@
-- id: singleton-cohortid
+# Trio with affected proband
+- id: EpilepsyTrio17  # cohort id
   phenotypes:
-  - HP:0000001
+    - HP:0001250  # Seizure
+    - HP:0001263  # Global developmental delay
   affecteds:
-  - id: singleton-sampleid
-    sex: MALE
-- id: trio-cohortid
-  phenotypes:
-  - HP:0000001
-  affecteds:
-  - id: trio-probandid
-    parents:
-    - trio-fatherid
-    - trio-motherid
-    sex: MALE
+    - id: family17-01  # sample id of the proband
+      sex: MALE
+      parents: 
+      - family17-02  # sample id of the mother
+      - family17-03  # sample id of the father
   unaffecteds:
-  - id: trio-fatherid
+    - id: family17-02  # sample id of the mother
+      sex: FEMALE
+    - id: family17-03  # sample id of the father
+      sex: MALE
+
+# Unrelated cohort with all unaffected
+- id: YorubanTrio  # cohort id
+  unaffecteds:
+    - id: NA19240  # sample id
+      sex: FEMALE
+    - id: NA19238  # sample id
+      sex: FEMALE
+    - id: NA19239  # sample id
+      sex: MALE
+
+# Singleton affected but unknown phenotype
+- id: hg002  # cohort id
+  phenotypes:
+  - HP:0000001  # example HPO phenotype for "All" phenotype
+  affecteds:
+  - id: hg002  # sample id
     sex: MALE
-  - id: trio-motherid
-    sex: FEMALE

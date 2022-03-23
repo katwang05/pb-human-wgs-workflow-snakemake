@@ -6,21 +6,24 @@
 - [Getting Started](#getting-started)
   - [1. Dependencies](#1-dependencies)
   - [2. Prepare Workspace](#2-prepare-workspace)
-  - [3. Configuration Files](#3-configuration-files)
-  - [4. Run Analysis](#4-run-analysis)
-  - [5. Outputs](#5-outputs)
+  - [3. Analysis Configuration](#3-analysis-configuration)
+  - [4. Cluster Configuration](#4-cluster-configuration)
+  - [5. Run Analysis](#5-run-analysis)
+- [Outputs](#outputs)
 - [Citations](#citations)
 
 ---
 
-# Workflow Overview
+## Workflow Overview
+
 The purpose of this pipeline is to comprehensively detect and prioritize variants in human genomes using PacBio HiFi reads. It consists of **three [Snakemake](https://snakemake.readthedocs.io/en/stable/) workflows** designed to run sequentially, with PacBio HiFi BAMs or FASTQs as the primary input:
 
 1. [process_smrtcells](#1-process_smrtcells)
 2. [process_sample](#2-process_sample)
 3. [process_cohort](#3-process_cohort)
 
-## 1. process_smrtcells
+### process_smrtcells
+
 A single sample will often be sequenced on multiple SMRT Cells, so this workflow aligns HiFi reads from each SMRT Cell to the GRCh38 human reference genome separately. This allows for quality control steps to confirm, for example, that all HiFi reads are from the same sample.
 
 | Tool  | Task  |
@@ -32,25 +35,27 @@ A single sample will often be sequenced on multiple SMRT Cells, so this workflow
 | [scripts/calculate_M2_ratio.py](https://github.com/PacificBiosciences/pb-human-wgs-workflow-snakemake/blob/main/scripts/calculate_M2_ratio.py) | calculate depth ratio (chrM:chr2) from mosdepth summary for sample swap detection |
 | [jellyfish](https://github.com/gmarcais/Jellyfish), [scripts/modimer.py](https://github.com/PacificBiosciences/pb-human-wgs-workflow-snakemake/blob/main/scripts/modimer.py) | count kmers in HiFi reads to dump and export modimers for sample swap detection |
 
-## 2. process_sample
-The primary goals of this workflow are variant discovery, variant calling, and assembly for each sample. 
+### process_sample
+
+The primary goals of this workflow are variant discovery, variant calling, and assembly for each sample.
 
 | Tool  | Task  |
 | :---   | :---   |
-| [pbsv](https://github.com/PacificBiosciences/pbsv)              | call structural variants | 
+| [pbsv](https://github.com/PacificBiosciences/pbsv)              | call structural variants |
 | [DeepVariant](https://github.com/google/deepvariant)            | call small variants |
 | [WhatsHap](https://github.com/whatshap/whatshap/)               | phase small variants and generate merged, haplotagged BAM|
+| [BCFtools RoH](https://samtools.github.io/bcftools/howtos/roh-calling.html)| detect regions of autozygosity in merged, haplotagged BAM using a hidden Markov model |
 | [mosdepth](https://github.com/brentp/mosdepth)        | calculate aligned coverage depth of merged, haplotagged BAM |
-| [tandem-genotypes](https://github.com/mcfrith/tandem-genotypes), [scripts/check_tandem_repeat_coverage.py](https://github.com/PacificBiosciences/pb-human-wgs-workflow-snakemake/blob/main/scripts/check_tandem_repeat_coverage.py) | genotype known tandem repeat expansions associated with disease | 
-| [hifiasm](https://github.com/chhylp123/hifiasm)                 | assemble reads | 
+| [tandem-genotypes](https://github.com/mcfrith/tandem-genotypes), [scripts/check_tandem_repeat_coverage.py](https://github.com/PacificBiosciences/pb-human-wgs-workflow-snakemake/blob/main/scripts/check_tandem_repeat_coverage.py) | genotype known tandem repeat expansions associated with disease |
+| [hifiasm](https://github.com/chhylp123/hifiasm)                 | assemble reads |
 | [calN50](https://github.com/lh3/calN50)                      | calculate assembly stats |
 | [seqtk](https://github.com/lh3/seqtk) | split assembly contigs into 200kb chunks to facilitate visualization of aligned assembly with IGV |
 | [minimap2](https://github.com/lh3/minimap2)                     | align assembly to reference (assembly contigs are split into 200kb chunks to facilitate visualization with IGV) |
 | [jellyfish](https://github.com/gmarcais/Jellyfish) | merge jellyfish kmer counts for by sample |
 | [scripts/check_kmer_consistency.py](https://github.com/PacificBiosciences/pb-human-wgs-workflow-snakemake/blob/main/scripts/check_kmer_consistency.py) | calculate consistency of kmers between sequencing runs for sample swap detection |
 
+### process_cohort
 
-## 3. process_cohort
 In this workflow, variants are prioritized, annotated, and filtered to aid in the process of finding candidate rare variants with functional consequence. It can be run with a single sample (singleton) or as a multi-sample cohort (e.g., trio, quad) depending on the configuration specified in `cohort.yaml` ([details below](#configuration-files)).
 
 | Tool  | Task  |
@@ -67,76 +72,54 @@ In this workflow, variants are prioritized, annotated, and filtered to aid in th
 | [svpack](https://github.com/PacificBiosciences/svpack) | annotate structural variant calls with functional consequence based on position and reference genome annotation |
 | [slivar](https://github.com/brentp/slivar) | convert filtered and annotated variants from slivar and svpack into TSVs for easy browsing |
 | [yak](https://github.com/lh3/yak) | create k-mer database for each parent (only if trios included in cohort) |
-| [hifiasm](https://github.com/chhylp123/hifiasm)                 | assemble reads with trio binning (only if trios included in cohort) | 
+| [hifiasm](https://github.com/chhylp123/hifiasm)                 | assemble reads with trio binning (only if trios included in cohort) |
 | [calN50](https://github.com/lh3/calN50)                      | calculate assembly stats  (only if trios included in cohort) |
 | [seqtk](https://github.com/lh3/seqtk) | split assembly contigs into 200kb chunks to facilitate visualization of aligned assembly with IGV (only if trios included in cohort) |
 | [minimap2](https://github.com/lh3/minimap2)                     | align assembly to reference (only if trios included in cohort) |
 
 [Back to top](#TOP)
 
----------------
+---
 
-# Getting Started
+## Getting Started
+
 These workflows are designed to be implemented on a **linux cluster** and require that you follow the installation and configuration procedures described below.
 
-# 1. Dependencies
+### 1. Dependencies
+
 - [singularity>=3.5.3](#singularity) installed by root
+  - [Singularity](https://sylabs.io/guides/3.6/admin-guide/installation.html#installation-on-linux) **must be installed with root privileges**. If you do not have root privileges and singularity is not installed on your linux cluster, we recommend contacting your HPC administrator for assistance.
 - [conda](#conda)
-- [other](#other)
-  - lockfile==0.12.2
-  - python3
-  - snakemake>=5.19
-  - mamba (optional, but recommended)
-
-## Singularity
-[Singularity](https://sylabs.io/guides/3.6/admin-guide/installation.html#installation-on-linux) **must be installed with root privileges**. If you do not have root privileges and singularity is not installed on your linux cluster, we recommend contacting your HPC administrator for assistance.
-
-## Conda
-If conda is not already available to you, we recommend installing Miniconda, a free minimal installer for conda. Download the latest Linux installer for Miniconda3 (64 bit) from [the Miniconda website](https://docs.conda.io/en/latest/miniconda.html#linux-installers). The correct file is named `Miniconda3-latest-Linux-x86_64.sh` where "latest" is replaced by the most recent version number. Then, execute the bash installer with the following command.
-
-`bash Miniconda3-latest-Linux-x86_64.sh`
-
-## Other
-Once conda is installed, the easiest way to manage the final dependencies is by creating a conda environment. The following command creates a conda environment named `pacbio-human-wgs` with the final requirements. 
-
-`conda create -n pacbio-human-wgs -c bioconda -c conda-forge lockfile==0.12.2 python=3 snakemake mamba`
-
-This environment must be activated before using the workflow.
-
-`conda activate pacbio-human-wgs`
+  - If conda is not already available to you, we recommend installing Miniconda, a free minimal installer for conda. Download the latest Linux installer for Miniconda3 (64 bit) from [the Miniconda website](https://docs.conda.io/en/latest/miniconda.html#linux-installers).
 
 [Back to top](#TOP)
 
----------------
+---
 
-# 2. Prepare Workspace
+### 2. Prepare Workspace
+
 These snakemake workflows require a very specific directory structure in order to function properly. Empty directories that will store input and output files from the analysis were not built into the repo; this allows users to `git pull` the most recent version of the repo without affecting their own data and analysis files. However, this requires that users build the directory structure themselves before using the workflows for the first time.
 
-First, create a clean project directory and move into that directory.
-```
+```text
+# create a clean project directory and move into that directory
 mkdir <directory_name>
 cd <directory_name>
-```
 
-Then, clone the repo and submodules (`--recursive` flag) into a folder named `workflow/`.
-```
+# clone the repo and submodules (--recursive flag) into a folder named workflow/
 git clone --recursive https://github.com/PacificBiosciences/pb-human-wgs-workflow-snakemake.git workflow
-```
 
-Create additional empty directories required by the workflow.
-```
+# create additional empty directories required by the workflow
 mkdir -p cluster_logs smrtcells/ready smrtcells/done samples cohorts
 ```
 
 There are two additional folders (`reference/` and `resources/`) which contain content necessary for these workflows to run. We are working to make these folders available in a public repository, but until then please contact one of the repository contributors or, if applicable, your PacBio representative to request these materials.
 
-
 After completing these steps, you can visualize the complete directory structure using the `tree -d` command. It is imperative that you preserve this directory structure (and the contents of those directories) to ensure the proper functioning of the workflows. Avoid moving files/directories or changing their names if you intend to run the workflows again in the future.
 
-```
+```text
 <directory_name>
     ├── cluster_logs
-    ├── cohorts
+    ├── cohorts  # created during process_cohort
     ├── reference
     │   └── annotation
     ├── resources
@@ -149,7 +132,7 @@ After completing these steps, you can visualize the complete directory structure
     │   ├── jellyfish
     │   ├── slivar
     │   └── tandem-genotypes
-    ├── samples
+    ├── samples  # created during process_smrtcells
     ├── smrtcells
     │   ├── done
     │   └── ready
@@ -161,29 +144,47 @@ After completing these steps, you can visualize the complete directory structure
             └── svpack
 ```
 
+Now you can add your input files (unaligned PacBio HiFi reads) to the correct location.
+
+```text
+# create a directory for each sample in smrtcells/ready.
+mkdir smrtcells/ready/<sample_id>
+
+
+# add one or more unaligned PacBio HiFi reads files in the correct sample directory with a symlink 
+ln -s /path/to/HiFi/BAM/or/FASTQ/<hifi_reads_filename> smrtcells/ready/<sample_id>/
+```
+
+> **WARNING: unaligned BAM and FASTQ filenames must be identifiable as HiFi reads, i.e. have the following format.**
+>
+> - regex for BAM: `/m\d{5}[Ue]?_\d{6}_\d{6}.(ccs|hifi_reads).bam`
+>   - example: `m54119U_210108_012126.ccs.bam`
+>   - example: `m64013e_210917_004210.hifi_reads.bam`
+> - regex for FASTQ: `/m\d{5}[Ue]?_\d{6}_\d{6}.fastq.gz`
+>   - example: `m54119U_210108_012126.fastq.gz`
+>   - example: `m64013e_210917_004210.fastq.gz`
+
 [Back to top](#TOP)
 
----------------
+---
 
-# 3. Configuration Files
-Configuration files are written with [`yaml` syntax](https://yaml.org/spec/1.2.2/). 
+### 3. Analysis Configuration
 
-## Analysis configuration 
-The following configuration files require your attention before running the workflows.
-- [`cohort.yaml`](#cohortyaml) is a configuration file that **must be created** for the `process_cohort` workflow. It specifies sample names, relationships, and phenotypes that will be included in the analysis. Please create a file called `cohort.yaml` to reflect the specifics of your own analysis. 
-- [`config.yaml`](#configyaml) specifies which steps are run in each workflow and contains file paths and version numbers for the docker images used by singularity.
-  
-### `cohort.yaml`
-The `process_cohort` workflow can be configured to run for singletons, trios, or other related/unrelated cohorts of one or more individuals. Multiple singletons and/or cohorts can be listed in the same `cohort.yaml`. Multiple HPO phenotypes ([Human Phenotype Ontology](https://hpo.jax.org/app/) codes) can be listed. The `HP:0000001` phenotype can be used to specify an unknown phenotype for an affected sample. No phenotype needs to be specified if all samples are `unaffecteds`. 
+Configuration files are written with [`yaml` syntax](https://yaml.org/spec/1.2.2/).
 
-Notes: 1) Choose `cohort_id` and `sample_id` names that make sense to computers! Avoid names with spaces and non-standard symbols. 2) Preserve the white space and structure of `cohort.yaml` entries (e.g. indents, dashes, spaces) to avoid unintended cohort results.
-```
+#### Create `cohort.yaml`
+
+The `process_cohort` workflow requires you to specify sample names, relationships, and phenotypes in `cohort.yaml`. Cohorts can consist of singletons, trios, or other related/unrelated groups of one or more individuals. Multiple singletons and/or cohorts can be listed in the same `cohort.yaml` and run independently. Multiple HPO phenotypes ([Human Phenotype Ontology](https://hpo.jax.org/app/) codes) can be listed for each sample. The `HP:0000001` term can be used to specify an unknown phenotype for an affected sample. No phenotype needs to be specified if all samples are `unaffecteds`.
+
+The layout of `cohort.yaml` is shown below and an example `cohort.yaml` file can be found [here](example_cohort.yaml).
+
+```text
 # Singleton
 - id: <cohort_id>
   phenotypes:
   - HP:0000001
   affecteds:
-  - id: singleton-sampleid
+  - id: <sample_id>
     sex: MALE
 
 # Trio
@@ -191,60 +192,29 @@ Notes: 1) Choose `cohort_id` and `sample_id` names that make sense to computers!
   phenotypes:
   - HP:0000001 
   affecteds:
-  - id: trio-probandid
+  - id: <child_id>
     parents:
-    - trio-fatherid
-    - trio-motherid
+    - <father_id>
+    - <mother_id>
     sex: MALE
   unaffecteds:
-  - id: trio-fatherid
+  - id: <father_id>
     sex: MALE
-  - id: trio-motherid
+  - id: <mother_id>
     sex: FEMALE
 ```
-#### Example `cohort.yaml`
-```
-# Trio with affected proband
-- id: EpilepsyTrio17  # cohort id
-  phenotypes:
-    - HP:0001250  # Seizure
-    - HP:0001263  # Global developmental delay
-  affecteds:
-    - id: family17-01  # sample id of the proband
-      sex: MALE
-      parents: 
-      - family17-02  # sample id of the mother
-      - family17-03  # sample id of the father
-  unaffecteds:
-    - id: family17-02  # sample id of the mother
-      sex: FEMALE
-    - id: family17-03  # sample id of the father
-      sex: MALE
 
-# Unrelated cohort with all unaffected
-- id: YorubanTrio  # cohort id
-  unaffecteds:
-    - id: NA19240  # sample id
-      sex: FEMALE
-    - id: NA19238  # sample id
-      sex: FEMALE
-    - id: NA19239  # sample id
-      sex: MALE
+> **WARNING**:
+>
+> - Choose `cohort_id` and `sample_id` names that make sense to computers! Avoid names with spaces and non-standard symbols.
+> - Each cohort must have a unique `cohort_id`.
+> - Preserve the white space and structure of `cohort.yaml` entries (e.g. indents, dashes, spaces) to avoid unintended cohort results.
 
-# Singleton affected but unknown phenotype
-- id: hg002  # cohort id
-  phenotypes:
-  - HP:0000001  # example HPO phenotype for "All" phenotype
-  affecteds:
-  - id: hg002  # sample id
-    sex: MALE
-```
+#### Modify `config.yaml` if necessary
 
-### `config.yaml`
+The `config.yaml` file specifies which steps are run in each workflow and contains various parameters, file paths, and version numbers for the docker images used by singularity. By default, all steps in a workflow will run when the workflow is launched. If you'd prefer to only run a few steps in one of the workflows, then you can "comment out" the workflow targets in `config.yaml` by adding a `#` symbol at the beginning of the line. Be aware, however, that some steps require the output of other steps in the workflow. For example, the following configuration where `whatshap` has been commented out would cause errors in the `process_sample` and `process_cohort` workflows because `whatshap` output is required by steps like `tandem-genotypes` and `slivar`.
 
-By default, all steps in a workflow will run when the workflow is launched. If you'd prefer to only run a few steps in one of the workflows, then you can "comment out" the workflow targets in `config.yaml` by adding a `#` symbol at the beginning of the line. Be aware, however, that some steps require the output of other steps in the workflow. For example, the following configuration where `whatshap` has been commented out would cause errors in the `process_sample` and `process_cohort` workflows because `whatshap` output is required by steps like `tandem-genotypes` and `slivar`.
-
-```
+```text
 smrtcells_targets:
   - alignment
   - stats  # req: alignment
@@ -269,90 +239,109 @@ cohort_targets:
   - trio_assembly
 ```
 
+#### Additional configuration files
 
-## Cluster configuration 
-The following configuration files **may need to be edited** based on the specifics of your HPC cluster. Additional flags may be necessary for job submission and you may need to talk to your HPC administrator if the default cluster configuration files aren’t working. Warning: unintential or misinformed changes to these files may prevent the workflows from running properly. 
-- `*.cluster.yaml` files for each workflow contain example cluster configurations for a **SLURM cluster** with a `compute` queue for general compute and a `ml` queue for GPU
-- `*.cluster.sge.yaml` files for each workflow contain example cluster configurations for a **SGE cluster**. Warning: SGE configuration files are not as well maintained as SLURM configuration files in this repo because they are used less frequently.
+The following configuration files should not be modified unless you're confident about what you're doing.
 
-## Additional configuration files
-The following configuration files should not be modified.
 - `reference.yaml` contains file paths and names related to the reference genome and resource files used by various steps in the workflows
 - Additional conda environment `.yaml` files for individual steps in the workflows are located in `rules/envs/`
 
 [Back to top](#TOP)
 
----------------
-
-# 4. Run Analysis
-The following instructions are specific to a slurm cluster (i.e. `sbatch`). Users of SGE or related job management systems will need to use appropriate job submission execution and flags. 
-
-1. Move into the analysis directory that you created in [Prepare Workspace](#2-prepare-workspace).
-```
-cd <directory_name>
-```
-
-2. Create `cohort.yaml` to reflect the sample names, phenotypes, and relationships of your samples (see [Configuration Files](#3-configuration-files)). An easy way to do this is to copy the `example_cohort.yaml` from `workflow/` your project directory and edit it with your favorite text editor. Remember to choose `cohort_id` and `sample_id` names that make sense to computers! Avoid names with spaces and non-standard symbols, and preserve the existing list structure in each entry (indents, dashes, spaces).
-
-```
-cp workflow/example_cohort.yaml cohort.yaml
-nano cohort.yaml
-```
-
-3. Create a directory for each sample in `smrtcells/ready`. The names of these directories must match the sample IDs specified in `cohort.yaml`.
-```
-mkdir smrtcells/ready/<sample_id>
-```
-
-4. Put PacBio HiFi reads into their respective directories. The easiest way to do this is with a symlink. **Note: unaligned BAM and FASTQ filenames must be identifiable as HiFi reads, i.e. have the following format.** 
-   - regex for BAM: `/m\d{5}U?e?_\d{6}_\d{6}.(ccs|hifi_reads).bam`
-     - example: `m54119U_210108_012126.ccs.bam`
-     - example: `m64013e_210917_004210.hifi_reads.bam`
-   - regex for FASTQ: `/m\d{5}U?e?_\d{6}_\d{6}.fastq.gz`
-     - example: `m54119U_210108_012126.fastq.gz`
-     - example: `m64013e_210917_004210.fastq.gz`
-  
-```
-ln -s /path/to/HiFi/BAM/or/FASTQ/<hifi_reads_filename> smrtcells/ready/<sample_id>/
-```
-
-5. Activate conda environment
-
-```
-conda activate pacbio-human-wgs
-```
-
-6. Run `process_smrtcells` workflow. This will process all samples located in `smrtcells/ready`. If you have samples in this folder that you don't want to process, move them to `smrtcells/done`.
-```
-sbatch workflow/process_smrtcells.sh
-```
-
-7. When `process_smrtcells.sh` has completed, run the `process_sample.sh` workflow. If you've logged out of your HPC session, make sure to re-activate the conda environment before submitting this job.
-```
-sbatch workflow/process_sample.sh <sample_id>
-```
-
-8. When all of the samples have completed `process_smrtcells` and `process_sample` workflows, you can run the `process_cohort` workflow. The following command will only process the `<cohort_id>` or specified, which must match an entry in `cohort.yaml`. If you've logged out of your HPC session, make sure to re-activate the conda environment before submitting this job.
-```
-sbatch workflow/process_cohort.sh <cohort_id>
-```
-
-
 ---
-**Note**: The first time you run any snakemake workflow (`process_smrtcells`, `process_sample`, `process_cohort`), run one sample first so that the conda environments for that workflow are installed only once. After the snakemake workflow starts launching its own sub-jobs, then you can run the rest of your samples.
 
+### 4. Cluster configuration
+
+We have provided sample submission scripts for three different schedulers (SLURM, SGE, LSF) as well as a local execution option. The following files **may need to be edited** based on the specifics of your HPC cluster. Additional flags may be necessary for job submission and you may need to talk to your HPC administrator if the example scripts aren’t working.
+
+- `process_smrtcells.(slurm|sge|lsf|local).sh`
+- `process_sample.(slurm|sge|lsf|local).sh`]
+- `process_cohort.(slurm|sge|lsf|local).sh`
+- `profiles/(slurm|sge|lsf|local)/config.yaml` # snakemake configuration [profiles](https://snakemake.readthedocs.io/en/stable/executing/cli.html#profiles)
+- `rules/sample_deepvariant.smk` # GPU and singularity constraints specified within rules
+- `variables.env` # environment variables such as TMPDIR and cluster partition
+
+> **WARNING**:
+>
+> - Job scripts and configuration for SGE and LSF schedulers are included as a courtesy, but are not regularly tested or maintained.
+> - Unintential or misinformed changes to these files may prevent the workflows from running properly.
 
 [Back to top](#TOP)
 
----------------
+---
 
-# 5. Outputs
-The results of `process_smrtcells` and `process_sample` are written to the `samples/` directory. The results of `process_cohort` are written to the `cohorts/` directory. 
+### 5. Run Analysis
 
-## Key outputs in `samples/`
+The following instructions are specific to a slurm cluster (i.e. `sbatch`). Users of SGE, LSF, or related job management systems will need to use appropriate job submission execution and flags.
+
+Do not try running an anlysis until you have completed the previous steps!
+
+```text
+# create conda environment
+# you only need to create this environment one time
+conda env create --file workflow/environment.yaml
+
+# activate conda environment
+conda activate pb-human-wgs-workflow
+
+# confirm that you're in the analysis directory you created (parent directory of workflow)
+
+# run process_smrtcells on all samples in smrtcells/ready
+sbatch workflow/process_smrtcells.slurm.sh
+
+# process_smrtcells must finish before launching next step!
+# run process_sample on a single sample
+sbatch workflow/process_sample.slurm.sh <sample_id>
+
+# process_smrtcells & process_sample must finish for all samples in cohort before next step!
+# run process_cohort on a single cohort described in cohort.yaml
+sbatch workflow/process_cohort.slurm.sh <cohort_id>
+```
+
+For local execution:
+
+```text
+# create conda environment
+# you only need to create this environment one time
+conda env create --file workflow/environment.yaml
+
+# activate conda environment
+conda activate pb-human-wgs-workflow
+
+# confirm that you're in the analysis directory you created (parent directory of workflow)
+
+# run process_smrtcells on all samples in smrtcells/ready
+bash workflow/process_smrtcells.local.sh
+
+# process_smrtcells must finish before launching next step!
+# run process_sample on a single sample
+sbatch workflow/process_sample.local.sh <sample_id>
+
+# process_smrtcells & process_sample must finish for all samples in cohort before next step!
+# run process_cohort on a single cohort described in cohort.yaml
+bash workflow/process_cohort.local.sh <cohort_id>
+```
+
+> **WARNING**:
+>
+> - The conda environment must activated before launching any of the workflows, so if you've logged out of your HPC session, make sure to re-activate the conda environment before submitting the next job.
+> - The first time you run any snakemake workflow (`process_smrtcells`, `process_sample`, `process_cohort`), run one sample first so that the conda environments for that workflow are installed only once. After the snakemake workflow starts launching its own sub-jobs, then you can run the rest of your samples.
+> - The `process_smrtcells` workflow will process all samples located in `smrtcells/ready`. If you have samples in this folder that you don't want to process, move them to `smrtcells/done`.
+>
+
+[Back to top](#TOP)
+
+---
+
+## Outputs
+
+The results of `process_smrtcells` and `process_sample` are written to the `samples/` directory. The results of `process_cohort` are written to the `cohorts/` directory.
+
+### Key outputs in `samples/`
+
 After `process_smrtcells` and `process_sample` have finished, the top level directory structure of each sample in `samples/` should look like the following:
 
-```
+```text
 $ tree -dL 1 samples/<sample_id>
 
 samples/<sample_id>
@@ -372,10 +361,12 @@ samples/<sample_id>
 
 13 directories
 ```
-The following are some of the key output files from these workflows. 
+
+The following are some of the key output files from these workflows.
+
 - **SMRT Cell Statistics**
-  - `smrtcell_stats/*.read_length_and_quality.tsv` 
-  - One summary file per SMRT Cell with 3 columns: 
+  - `smrtcell_stats/*.read_length_and_quality.tsv`
+  - One summary file per SMRT Cell with 3 columns:
     - [1]read ID
     - [2]read length (bp)
     - [3]read quality
@@ -419,7 +410,7 @@ The following are some of the key output files from these workflows.
   - `tandem-genotypes/*.tandem-genotypes.dropouts.txt`
     - Regions with insufficient coverage to genotype are listed here
 - **Assembly**
-  - `hifiasm/*.asm.bp.hap1.p_ctg.fasta.gz` 
+  - `hifiasm/*.asm.bp.hap1.p_ctg.fasta.gz`
   - `hifiasm/*.asm.bp.hap2.p_ctg.fasta.gz`
     - Genome assembly split into pseudohaplotypes (hap1 and hap2)
   - `hifiasm/*.asm.bp.hap1.p_ctg.noseq.gfa`
@@ -433,21 +424,25 @@ The following are some of the key output files from these workflows.
   - `hifiasm/*.asm.GRCh38.htsbox.vcf.gz` and `.tbi`
     - Variants called after aligned assembly to the reference + associated index file (.tbi)
 
+### Key outputs in `cohorts/`
 
-## Key outputs in `cohorts/`
 After `process_cohort` has finished, the top level directory structure of each cohort in `cohorts/` should look like the following:
-```
+
+```text
 $ tree -dL 1 cohorts/<cohort_id>
 
 cohorts/<cohort_id>
 ├── benchmarks
+├── glnexus  # only produced if cohort consists of >1 sample
 ├── hifiasm   # only produced if trios present in cohort
 ├── logs
+├── pbsv  # only produced if cohort consists of >1 sample
 ├── slivar
 └── svpack
 
 5 directories
 ```
+
 The following are some of the key output files from these workflows. The haplotype-resolved assembly is only produced when a cohort includes one or more trios (child and both parents).
 
 - **Filtered & Annotated Small Variants**
@@ -461,8 +456,8 @@ The following are some of the key output files from these workflows. The haploty
   - `svpack/*.GRCh38.pbsv.svpack.vcf.gz` and `.tbi`
     - Structural variant calls that are filtered based on population frequency and annotated with cohort information, population frequency, gene, functional impact, etc.
     - A corresponding `.tsv` is also available in this directory, which can be opened in Excel or other spreadsheet softwares
-- **Haplotype-Resolved Assembly** 
-  - `hifiasm/*.asm.dip.hap1.p_ctg.fasta.gz` 
+- **Haplotype-Resolved Assembly**
+  - `hifiasm/*.asm.dip.hap1.p_ctg.fasta.gz`
   - `hifiasm/*.asm.dip.hap2.p_ctg.fasta.gz`
     - Genome assembly split into haplotypes (hap1 and hap2)
   - `hifiasm/*.asm.dip.hap1.p_ctg.noseq.gfa`
@@ -476,17 +471,44 @@ The following are some of the key output files from these workflows. The haploty
 
 [Back to top](#TOP)
 
----------------
+---
 
-# Citations
-The following resources were used for variant prioritization and should be cited if this workflow generates results for publication. 
+## Troubleshooting
+
+This section includes problems frequently encountered by users of this pipeline. Please file a repo issue or contact one of the repo contributors if the following troubleshooting tips don't address your concerns.
+
+**Problem:** Workflow won't run and gives error `snakemake: command not found`  
+**Solution:** Make sure the conda environment is installed and activated before trying to run the workflow. Instructions [here](#5-run-analysis).
+
+**Problem:** Workflow won't run and gives error `lockfile: Try praying, giving up on "samples/<sample_id>/process_sample.lock"`  
+**Solution:** If the workflows are still running or a job failed, the lockfile may not have been properly removed. Either wait for the workflow to finish or, if the job failed, manually remove the lockfile. This error can also be caused if the input file folder doesn't exist. For example, if you try to run `process_sample` without first running `process_smrtcells`.
+
+**Problem:** Trio assembly has one haplotype that is significantly larger than the other  
+**Solution:** It's possible that parental HiFi coverage for at least one parent/haplotype is insufficient for the trio binning step in hifiasm. Consider sequencing parents to greater depth.
+
+**Problem:** The `process_smrtcells` workflow starts, but no jobs are executed and it says `uBAMs available for samples: [] FASTQs available for samples: []`  
+**Solution:**  Make sure you've provided input files in `smrtcells/ready/<sample_id>` The folder <sample_id> must be created with `mkdir` (not symlinked) although files inside this folder can be symlinked.
+
+**Problem:** I don't have access to GPUs  
+**Solution:**  The local execution launch scripts are CPU-only, so one option is to follow instructions for local execution. Alternatively, if you need to run this workflow on a cluster, simply add `cpu_only: True` to `workflow/config.yaml`. Additional changes to resources like threads/cores may be required if jobs fail to finish.
+
+**Problem:** No space left on device  
+**Solution:** You may need to clean out `/tmp` on the host that produced this error. If this issue persists, change the TMPDIR variable in `workflow/variables.env` to a directory that has sufficient space for temporary files.
+
+[Back to top](#TOP)
+
+---
+
+## Citations
+
+The following resources were used for variant prioritization and should be cited if this workflow generates results for publication.
 
 | Resource | Citation |
 | :--- | :--- |
 | Evan Eichler Lab |Audano, Peter A., et al. "Characterizing the major structural variant alleles of the human genome." Cell 176.3 (2019): 663-675. |
 | deCODE genetics | Beyter, Doruk, et al. "Long-read sequencing of 3,622 Icelanders provides insight into the role of structural variants in human diseases and other traits." Nature Genetics 53.6 (2021): 779-786. |
 | gnomAD-SV | Collins, Ryan L., et al. "An open resource of structural variation for medical and population genetics." BioRxiv (2019): 578674. |
-| Human Pangenome Reference Consortium | https://github.com/human-pangenomics/HPP_Year1_Data_Freeze_v1.0 |
+| Human Pangenome Reference Consortium | [HPRC Year1 Data Freeze](https://github.com/human-pangenomics/HPP_Year1_Data_Freeze_v1.0) |
 | Phrank Scores | Jagadeesh, Karthik A., et al. "Phrank measures phenotype sets similarity to greatly improve Mendelian diagnostic disease prioritization." Genetics in Medicine 21.2 (2019): 464-470. |
 | gnomAD | Karczewski, K.J., Francioli, L.C., Tiao, G. et al. The mutational constraint spectrum quantified from variation in 141,456 humans. Nature 581, 434–443 (2020). doi:10.1038/s41586-020-2308-7 |
 | Human Phenotype Ontology | Köhler, Sebastian, et al. "The human phenotype ontology in 2021." Nucleic acids research 49.D1 (2021): D1207-D1217. |
@@ -505,13 +527,12 @@ The following tools and methods should also be cited if this workflow generates 
 | LAST | Kiełbasa, Szymon M., et al. "Adaptive seeds tame genomic sequence comparison." Genome research 21.3 (2011): 487-493. |
 | minimap2 | Li, Heng. "Minimap2: pairwise alignment for nucleotide sequences." Bioinformatics 34.18 (2018): 3094-3100. |
 | mosdepth | Pedersen, Brent S., and Aaron R. Quinlan. "Mosdepth: quick coverage calculation for genomes and exomes." Bioinformatics 34.5 (2018): 867-868. |
-| pbmm2 | https://github.com/PacificBiosciences/pbmm2 |
-| pbsv | https://github.com/pacificbiosciences/pbsv |
+| pbmm2 | [pbmm2 GitHub repo](https://github.com/PacificBiosciences/pbmm2) |
+| pbsv | [pbsv GitHub repo](https://github.com/pacificbiosciences/pbsv) |
 | slivar | Pedersen, Brent S., et al. "Effective variant filtering and expected candidate variant yield in studies of rare human disease." NPJ Genomic Medicine 6.1 (2021): 1-8. |
 | Snakemake | Mölder, Felix, et al. "Sustainable data analysis with Snakemake." F1000Research 10 (2021). |
-| svpack | https://github.com/PacificBiosciences/svpack |
+| svpack | [svpack GitHub repo](https://github.com/PacificBiosciences/svpack) |
 | tandem-genotypes | Mitsuhashi, Satomi, et al. "Tandem-genotypes: robust detection of tandem repeat expansions from long DNA reads." Genome biology 20.1 (2019): 1-17. |
 | WhatsHap | Martin, Marcel, et al. "WhatsHap: fast and accurate read-based phasing." BioRxiv (2016): 085050. |
-
 
 [Back to top](#TOP)
