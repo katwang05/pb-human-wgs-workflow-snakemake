@@ -433,6 +433,7 @@ $ tree -dL 1 cohorts/<cohort_id>
 
 cohorts/<cohort_id>
 ├── benchmarks
+├── glnexus  # only produced if cohort consists of >1 sample
 ├── hifiasm   # only produced if trios present in cohort
 ├── logs
 ├── pbsv  # only produced if cohort consists of >1 sample
@@ -492,7 +493,7 @@ This section includes problems frequently encountered by users of this pipeline.
 **Solution:**  The local execution launch scripts are CPU-only, so one option is to follow instructions for local execution. Alternatively, if you need to run this workflow on a cluster, simply add `cpu_only: True` to `workflow/config.yaml`. Additional changes to resources like threads/cores may be required if jobs fail to finish.
 
 **Problem:** No space left on device  
-**Solution:** Change the TMPDIR variable in `workflow/variables.env` to a directory that has sufficient space for temporary files. You may need to clean out your temporary file directory.
+**Solution:** You may need to clean out `/tmp` on the host that produced this error. If this issue persists, change the TMPDIR variable in `workflow/variables.env` to a directory that has sufficient space for temporary files.
 
 [Back to top](#TOP)
 
