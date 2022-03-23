@@ -1,3 +1,6 @@
+localrules: download_tg_list, generate_tg_bed, tandem_genotypes_absolute_count, tandem_genotypes_plot, tandem_repeat_coverage_dropouts
+
+
 rule download_tg_list:
     output: config['ref']['tg_list']
     log: "logs/download_tg_list.log"

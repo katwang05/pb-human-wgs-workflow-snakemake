@@ -1,3 +1,6 @@
+localrules: slivar_svpack_tsv
+
+
 rule svpack_filter_annotated:
     input:
         pbsv_vcf = svpack_input,

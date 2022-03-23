@@ -1,4 +1,5 @@
 ruleorder: smrtcell_stats_ubam > smrtcell_stats_fastq
+localrules: smrtcell_summary_stats
 
 
 rule smrtcell_stats_ubam:
