@@ -1,0 +1,11 @@
+reason: true
+rerun-incomplete: true
+keep-going: true
+printshellcmds: true
+cores: all
+use-conda: true
+conda-frontend: mamba
+latency-wait: 120
+use-singularity: true
+default-resources: 
+  - tmpdir=system_tmpdir

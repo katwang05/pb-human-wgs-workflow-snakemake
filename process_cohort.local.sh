@@ -1,15 +1,6 @@
 #!/bin/bash
-#$ -A 100humans
-#$ -cwd
-#$ -V
-#$ -j y
-#$ -S /bin/bash
-#$ -q default
-#$ -pe smp 4
-#$ -o ./cluster_logs/sge-$JOB_NAME-$JOB_ID-$HOSTNAME.out
-#$ -e ./cluster_logs/sge-$JOB_NAME-$JOB_ID-$HOSTNAME.err
 
-# USAGE: qsub workflow/process_cohort.sge.sh <cohort_id>
+# USAGE: bash workflow/process_cohort.local.sh <cohort_id>
 
 COHORT=$1
 
@@ -25,9 +16,13 @@ trap "rm -f ${LOCKFILE}; exit" SIGINT SIGTERM ERR EXIT
 # get variables from workflow/variables.env
 source workflow/variables.env
 
+# make logs directory if it doesn't exist
+mkdir -p logs
+
 # execute snakemake
 snakemake \
     --config cohort=${COHORT} \
     --nolock \
-    --profile workflow/profiles/sge \
-    --snakefile workflow/process_cohort.smk
+    --profile workflow/profiles/local \
+    --snakefile workflow/process_cohort.smk \
+    2>&1 | tee "logs/process_cohort.${COHORT}.$(date -d 'today' +'%Y%m%d%H%M').log"
