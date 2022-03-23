@@ -6,6 +6,8 @@
 #SBATCH --cpus-per-task 4
 #SBATCH -o cluster_logs/slurm-%x-%j-%N.out
 
+# USAGE: sbatch workflow/process_smrtcells.slurm.sh
+
 # set umask to avoid locking each other out of directories
 umask 002
 

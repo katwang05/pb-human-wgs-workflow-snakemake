@@ -9,6 +9,8 @@
 #$ -o ./cluster_logs/sge-$JOB_NAME-$JOB_ID-$HOSTNAME.out
 #$ -e ./cluster_logs/sge-$JOB_NAME-$JOB_ID-$HOSTNAME.err
 
+# USAGE: qsub workflow/process_cohort.sge.sh <cohort_id>
+
 COHORT=$1
 
 # set umask to avoid locking each other out of directories

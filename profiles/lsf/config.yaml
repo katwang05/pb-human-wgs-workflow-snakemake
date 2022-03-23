@@ -17,7 +17,7 @@ cluster: bsub -cwd
               -e {resources.err} {resources.extra}
 default-resources: 
   - partition='$PARTITION'
-  - tmpdir='$TMPDIR'
+  - tmpdir=system_tmpdir
   - threads=1
   - out='./cluster_logs/lsf-$LSB_JOBNAME-$LSB_JOBID-$HOSTNAME.out'
   - err='./cluster_logs/lsf-$LSB_JOBNAME-$LSB_JOBID-$HOSTNAME.err'

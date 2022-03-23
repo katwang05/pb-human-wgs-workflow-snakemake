@@ -17,7 +17,7 @@ cluster: sbatch --account={resources.account}
 default-resources:
   - account='$ACCOUNT'
   - partition='$PARTITION'
-  - tmpdir='$TMPDIR'
+  - tmpdir=system_tmpdir
   - threads=1
   - out='cluster_logs/slurm-%x-%j-%N.out'
   - extra=''

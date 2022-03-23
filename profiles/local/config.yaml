@@ -5,6 +5,7 @@ printshellcmds: true
 cores: all
 use-conda: true
 conda-frontend: mamba
+latency-wait: 120
 use-singularity: true
 default-resources: 
-  - tmpdir='$TMPDIR'
+  - tmpdir=system_tmpdir

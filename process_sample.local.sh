@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# USAGE: bash workflow/process_sample.local.sh <sample_id>
+
 SAMPLE=$1
 
 # set umask to avoid locking each other out of directories
@@ -18,7 +20,7 @@ mkdir -p logs
 
 # execute snakemake
 snakemake \
-    --config sample=${SAMPLE} cpu_only=True\
+    --config sample=${SAMPLE} cpu_only=True \
     --nolock \
     --profile workflow/profiles/local \
     --snakefile workflow/process_sample.smk \

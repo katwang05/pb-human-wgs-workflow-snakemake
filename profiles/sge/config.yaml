@@ -19,7 +19,7 @@ cluster: qsub -j y -cwd -V
 default-resources: 
   - account='$ACCOUNT'
   - partition='$PARTITION'
-  - tmpdir='$TMPDIR'
+  - tmpdir=system_tmpdir
   - threads=1
   - out='./cluster_logs/sge-$JOB_NAME-$JOB_ID-$HOSTNAME.out'
   - err='./cluster_logs/sge-$JOB_NAME-$JOB_ID-$HOSTNAME.err'

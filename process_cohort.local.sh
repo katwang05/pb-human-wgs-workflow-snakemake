@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# USAGE: bash workflow/process_cohort.local.sh <cohort_id>
+
 COHORT=$1
 
 # set umask to avoid locking each other out of directories

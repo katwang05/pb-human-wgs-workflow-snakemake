@@ -6,6 +6,8 @@
 #BSUB -o ./cluster_logs/lsf-$LSB_JOBNAME-$LSB_JOBID-$HOSTNAME.out
 #BSUB -e ./cluster_logs/lsf-$LSB_JOBNAME-$LSB_JOBID-$HOSTNAME.err
 
+# USAGE: bsub workflow/process_sample.lsf.sh <sample_id>
+
 SAMPLE=$1
 
 # set umask to avoid locking each other out of directories
