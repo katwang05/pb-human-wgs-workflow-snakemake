@@ -30,7 +30,7 @@ rule jellyfish_count:
     params:
         kmer_length = config['kmer_length'],
         size = 1000000000,
-        extra = "--canonical"
+        extra = "--canonical --disk"
     threads: 24
     conda: "envs/jellyfish.yaml"
     message: "Executing {rule}: Counting {params.kmer_length}mers in {input}."
