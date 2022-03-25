@@ -263,6 +263,7 @@ We have provided sample submission scripts for three different schedulers (SLURM
 
 > **WARNING**:
 >
+> - We recommend at least 80 cores and 1TB RAM for local execution.  Local execution will use all available cores.
 > - Job scripts and configuration for SGE and LSF schedulers are included as a courtesy, but are not regularly tested or maintained.
 > - Unintential or misinformed changes to these files may prevent the workflows from running properly.
 
