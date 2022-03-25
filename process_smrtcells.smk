@@ -5,15 +5,15 @@ from collections import defaultdict
 
 configfile: "workflow/reference.yaml"         # reference configuration
 configfile: "workflow/config.yaml"            # general configuration
-shell.prefix(f"set -o pipefail; umask 002; export TMPDIR={config['tmpdir']}; export SINGULARITY_TMPDIR={config['tmpdir']}; ")  # set g+w
+shell.prefix(f"set -o pipefail; umask 002; ")  # set g+w
 
 ref = config['ref']['shortname']
 
 # scan smrtcells/ready directory for uBAMs or FASTQs that are ready to process
 # uBAMs have priority over FASTQs in downstream processes if both are available
-ubam_pattern = re.compile(r'smrtcells/ready/(?P<sample>[A-Za-z0-9_-]+)/(?P<movie>m\d{5}[Ue]?_\d{6}_\d{6}).(ccs|hifi_reads).bam')
+ubam_pattern = re.compile(r'smrtcells/ready/(?P<sample>[A-Za-z0-9_-]+)/(?P<movie>m\d{5}U?e?_\d{6}_\d{6}).(ccs|hifi_reads).bam')
 ubam_dict = defaultdict(dict)
-fastq_pattern = re.compile(r'smrtcells/ready/(?P<sample>[A-Za-z0-9_-]+)/(?P<movie>m\d{5}[Ue]?_\d{6}_\d{6}).fastq.gz')
+fastq_pattern = re.compile(r'smrtcells/ready/(?P<sample>[A-Za-z0-9_-]+)/(?P<movie>m\d{5}U?e?_\d{6}_\d{6}).fastq.gz')
 fastq_dict = defaultdict(dict)
 for infile in Path('smrtcells/ready').glob('**/*.bam'):
     ubam_match = ubam_pattern.search(str(infile))
@@ -105,7 +105,7 @@ if 'kmers' in config['smrtcells_targets']:
                     for movie in list(fastq_dict[sample].keys())]) # kmers from FASTQs
 
 
-localrules: all
+localrules: all, md5sum
 
 
 rule all:

@@ -4,6 +4,7 @@ channels:
 - conda-forge
 - defaults
 dependencies:
-- snakemake>=5.19
+- snakemake>=6.15
 - lockfile==0.12.2
 - mamba
+- python=3

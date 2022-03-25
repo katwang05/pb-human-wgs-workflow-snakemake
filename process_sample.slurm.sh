@@ -1,15 +1,12 @@
 #!/bin/bash
-#$ -A 100humans
-#$ -cwd
-#$ -V
-#$ -j y
-#$ -S /bin/bash
-#$ -q default
-#$ -pe smp 4
-#$ -o ./cluster_logs/sge-$JOB_NAME-$JOB_ID-$HOSTNAME.out
-#$ -e ./cluster_logs/sge-$JOB_NAME-$JOB_ID-$HOSTNAME.err
+#SBATCH -A 100humans
+#SBATCH -p compute
+#SBATCH -N 1
+#SBATCH -n 1
+#SBATCH --cpus-per-task 4
+#SBATCH -o cluster_logs/slurm-%x-%j-%N.out
 
-# USAGE: qsub workflow/process_sample.sge.sh <sample_id>
+# USAGE: sbatch workflow/process_sample.slurm.sh <sample_id>
 
 SAMPLE=$1
 
@@ -28,5 +25,5 @@ source workflow/variables.env
 snakemake \
     --config sample=${SAMPLE} \
     --nolock \
-    --profile workflow/profiles/sge \
+    --profile workflow/profiles/slurm \
     --snakefile workflow/process_sample.smk

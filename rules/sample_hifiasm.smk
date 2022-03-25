@@ -1,4 +1,5 @@
 ruleorder: samtools_fasta > seqtk_fastq_to_fasta
+localrules: asm_stats, htsbox_bcftools_stats, gfa2fa
 
 
 rule samtools_fasta:
@@ -86,25 +87,18 @@ rule align_hifiasm:
     log: f"samples/{sample}/logs/align_hifiasm/{sample}.asm.{ref}.log"
     benchmark: f"samples/{sample}/benchmarks/align_hifiasm/{sample}.asm.{ref}.tsv"
     params:
-        max_chunk = 200000,
         minimap2_args = "-L --secondary=no --eqx -ax asm5",
-        minimap2_threads = 10,
+        minimap2_threads = 12,
         readgroup = f"@RG\\tID:{sample}_hifiasm\\tSM:{sample}",
-        samtools_threads = 3
-    threads: 16  # minimap2 + samtools(+1) + 2x awk + seqtk + cat
+        samtools_threads = 3,
+        samtools_mem = "8G"
+    threads: 16  # minimap2 + samtools(+3)
     conda: "envs/align_hifiasm.yaml"
     message: "Aligning {input.query} to {input.target}."
     shell:
         """
-        (cat {input.query} \
-            | seqtk seq -l {params.max_chunk} - \
-            | awk '{{ if ($1 ~ />/) {{ n=$1; i=0; }} else {{ i++; print n "." i; print $0; }} }}' \
-            | minimap2 -t {params.minimap2_threads} {params.minimap2_args} \
-                -R '{params.readgroup}' {input.target} - \
-                | awk '{{ if ($1 !~ /^@/) \
-                                {{ Rct=split($1,R,"."); N=R[1]; for(i=2;i<Rct;i++) {{ N=N"."R[i]; }} print $0 "\tTG:Z:" N; }} \
-                              else {{ print; }} }}' \
-                | samtools sort -@ {params.samtools_threads} > {output}) > {log} 2>&1
+        (minimap2 -t {params.minimap2_threads} {params.minimap2_args} -R '{params.readgroup}' {input.target} {input.query} \
+            | samtools sort -@ {params.samtools_threads} -T $TMPDIR -m {params.samtools_mem} > {output}) > {log} 2>&1
         """
 
 
@@ -132,4 +126,3 @@ rule htsbox_bcftools_stats:
     conda: "envs/bcftools.yaml"
     message: "Executing {rule}: Calculating VCF statistics for {input}."
     shell: "(bcftools stats --threads 3 {params} {input} > {output}) > {log} 2>&1"
-

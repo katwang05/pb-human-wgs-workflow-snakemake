@@ -4,5 +4,5 @@ channels:
   - defaults
 dependencies:
   - last==1186
-  - htslib==1.10
-  - samtools==1.10
+  - htslib=1.14
+  - samtools=1.14
