@@ -63,13 +63,8 @@ slivar_filters = [
                        && fam.every(segregating_dominant_x) \
                        && INFO.gnomad_ac <= {config['max_gnomad_ac']} \
                        && INFO.hprc_ac <= {config['max_hprc_ac']}'""",
+        f"--sample-expr 'comphet_side:sample.het && sample.GQ > {config['min_gq']}'",
 ]
-if singleton:
-    # singleton
-    slivar_filters.append(f"--sample-expr 'comphet_side:sample.het && sample.GQ > {config['min_gq']}'")
-else:
-    # trio cohort
-    slivar_filters.append("--trio 'comphet_side:comphet_side(kid, mom, dad) && kid.affected'")
 
 
 rule slivar_small_variant:
