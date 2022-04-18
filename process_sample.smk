@@ -72,6 +72,13 @@ if 'whatshap' in config['sample_targets']:
                                    'phased.tsv', 'phased.blocklist',
                                    'haplotagged.bam', 'haplotagged.bam.bai']])
 
+# generate phased CpG pileups
+include: 'rules/sample_cpg_pileup.smk'
+if 'cpg_pileup' in config['sample_targets']:
+    targets.extend([f"samples/{sample}/cpg_pileup/{sample}.{ref}.{infix}.denovo.{suffix}"
+                    for infix in ['combined', 'hap1', 'hap2']
+                    for suffix in ['bed', 'bw', 'mincov4.bed', 'mincov4.bw']])
+
 # genotype STRs
 include: 'rules/sample_tandem_genotypes.smk'
 if 'tandem-genotypes' in config['sample_targets']:

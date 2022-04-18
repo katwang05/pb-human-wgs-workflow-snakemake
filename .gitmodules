@@ -4,3 +4,6 @@
 [submodule "scripts/svpack"]
 	path = scripts/svpack
 	url = https://github.com/PacificBiosciences/svpack.git
+[submodule "scripts/pb-CpG-tools"]
+	path = scripts/pb-CpG-tools
+	url = https://github.com/PacificBiosciences/pb-CpG-tools.git
