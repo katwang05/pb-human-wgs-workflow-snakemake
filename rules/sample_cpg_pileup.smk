@@ -7,7 +7,7 @@ rule cpg_pileup:
         [f"samples/{sample}/cpg_pileup/{sample}.{ref}.{infix}.denovo.{suffix}"
          for infix in ['combined', 'hap1', 'hap2']
          for postfix in ['bed', 'bw', 'mincov4.bed', 'mincov4.bw']]
-    log: f"samples/{sample}/logs/cpg_pileup/{proband}.{ref}.log"
+    log: f"samples/{sample}/logs/cpg_pileup/{sample}.{ref}.log"
     benchmark: f"samples/{sample}/benchmarks/cpg_pileup/{sample}.{ref}.tsv"
     params:
         min_mapq = 1,
