@@ -1,12 +1,12 @@
 rule cpg_pileup:
     input:
         bam = f"samples/{sample}/whatshap/{sample}.{ref}.deepvariant.haplotagged.bam",
-        bai = f"samples/{sample}/whatshap/{sample}.{ref}.deepvariant.haplotagged.bam.bai"
+        bai = f"samples/{sample}/whatshap/{sample}.{ref}.deepvariant.haplotagged.bam.bai",
         reference = config['ref']['fasta'],
     output:
         [f"samples/{sample}/cpg_pileup/{sample}.{ref}.{infix}.denovo.{suffix}"
          for infix in ['combined', 'hap1', 'hap2']
-         for postfix in ['bed', 'bw', 'mincov4.bed', 'mincov4.bw']]
+         for suffix in ['bed', 'bw', 'mincov4.bed', 'mincov4.bw']]
     log: f"samples/{sample}/logs/cpg_pileup/{sample}.{ref}.log"
     benchmark: f"samples/{sample}/benchmarks/cpg_pileup/{sample}.{ref}.tsv"
     params:
