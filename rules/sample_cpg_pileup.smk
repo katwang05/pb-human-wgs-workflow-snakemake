@@ -11,6 +11,7 @@ rule cpg_pileup:
     benchmark: f"samples/{sample}/benchmarks/cpg_pileup/{sample}.{ref}.tsv"
     params:
         min_mapq = 1,
+        min_coverage = 10,
         pileup_mode = "model",
         model_dir = "workflow/scripts/pb-CpG-tools/pileup_calling_model",
         modsites = "denovo",
