@@ -6,7 +6,7 @@ rule cpg_pileup:
     output:
         [f"samples/{sample}/cpg_pileup/{sample}.{ref}.{infix}.denovo.{suffix}"
          for infix in ['combined', 'hap1', 'hap2']
-         for suffix in ['bed', 'bw', 'mincov4.bed', 'mincov4.bw']]
+         for suffix in ['bed', 'bw', 'mincov10.bed', 'mincov10.bw']]
     log: f"samples/{sample}/logs/cpg_pileup/{sample}.{ref}.log"
     benchmark: f"samples/{sample}/benchmarks/cpg_pileup/{sample}.{ref}.tsv"
     params:
@@ -22,5 +22,5 @@ rule cpg_pileup:
         (python3 workflow/scripts/pb-CpG-tools/aligned_bam_to_cpg_scores.py \
             -b {input.bam} -f {input.reference} -o {params.prefix} \
             -t {threads} -q {params.min_mapq} -m {params.modsites} \
-            -p {params.pileup_mode} -d {params.model_dir}) > {log} 2>&1
+            -p {params.pileup_mode} -d {params.model_dir} -c {params.min_coverage}) > {log} 2>&1
         """
