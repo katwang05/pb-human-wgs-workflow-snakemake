@@ -74,8 +74,8 @@ if 'whatshap' in config['sample_targets']:
 
 # generate phased CpG pileups
 include: 'rules/sample_cpg_pileup.smk'
-if 'cpg_pileup' in config['sample_targets']:
-    targets.extend([f"samples/{sample}/cpg_pileup/{sample}.{ref}.{infix}.denovo.{suffix}"
+if '5mc_cpg_pileup' in config['sample_targets']:
+    targets.extend([f"samples/{sample}/5mc_cpg_pileup/{sample}.{ref}.{infix}.denovo.{suffix}"
                     for infix in ['combined', 'hap1', 'hap2']
                     for suffix in ['bed', 'bw', 'mincov10.bed', 'mincov10.bw']])
 

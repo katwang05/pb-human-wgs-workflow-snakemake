@@ -4,18 +4,18 @@ rule cpg_pileup:
         bai = f"samples/{sample}/whatshap/{sample}.{ref}.deepvariant.haplotagged.bam.bai",
         reference = config['ref']['fasta'],
     output:
-        [f"samples/{sample}/cpg_pileup/{sample}.{ref}.{infix}.denovo.{suffix}"
+        [f"samples/{sample}/5mc_cpg_pileup/{sample}.{ref}.{infix}.denovo.{suffix}"
          for infix in ['combined', 'hap1', 'hap2']
          for suffix in ['bed', 'bw', 'mincov10.bed', 'mincov10.bw']]
-    log: f"samples/{sample}/logs/cpg_pileup/{sample}.{ref}.log"
-    benchmark: f"samples/{sample}/benchmarks/cpg_pileup/{sample}.{ref}.tsv"
+    log: f"samples/{sample}/logs/5mc_cpg_pileup/{sample}.{ref}.log"
+    benchmark: f"samples/{sample}/benchmarks/5mc_cpg_pileup/{sample}.{ref}.tsv"
     params:
         min_mapq = 1,
         min_coverage = 10,
         pileup_mode = "model",
         model_dir = "workflow/scripts/pb-CpG-tools/pileup_calling_model",
         modsites = "denovo",
-        prefix = f"samples/{sample}/cpg_pileup/{sample}"
+        prefix = f"samples/{sample}/5mc_cpg_pileup/{sample}"
     threads: 48
     conda: "envs/pb-cpg-tools.yaml"
     shell:
