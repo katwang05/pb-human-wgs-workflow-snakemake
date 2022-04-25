@@ -72,8 +72,8 @@ if 'whatshap' in config['sample_targets']:
                                    'phased.tsv', 'phased.blocklist',
                                    'haplotagged.bam', 'haplotagged.bam.bai']])
 
-# generate phased CpG pileups
-include: 'rules/sample_cpg_pileup.smk'
+# generate phased 5mC CpG pileups
+include: 'rules/sample_5mc_cpg_pileup.smk'
 if '5mc_cpg_pileup' in config['sample_targets']:
     targets.extend([f"samples/{sample}/5mc_cpg_pileup/{sample}.{ref}.{infix}.denovo.{suffix}"
                     for infix in ['combined', 'hap1', 'hap2']
