@@ -15,7 +15,7 @@ rule cpg_pileup:
         pileup_mode = "model",
         model_dir = "workflow/scripts/pb-CpG-tools/pileup_calling_model",
         modsites = "denovo",
-        prefix = f"samples/{sample}/5mc_cpg_pileup/{sample}"
+        prefix = f"samples/{sample}/5mc_cpg_pileup/{sample}.{ref}"
     threads: 48
     conda: "envs/pb-cpg-tools.yaml"
     shell:
