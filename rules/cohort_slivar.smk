@@ -45,7 +45,7 @@ rule bcftools_norm:
     params: f"--multiallelics - --output-type b --fasta-ref {config['ref']['fasta']}"
     conda: "envs/bcftools.yaml"
     message: "Executing {rule}: Splitting multiallelic sites and normalizing indels for {input.vcf}."
-    shell: "(bcftools norm {params} {input.vcf} -o {output}) > {log} 2>&1"
+    shell: "(bcftools norm {params} {input.vcf} | bcftools sort --output-type b -o {output}) > {log} 2>&1"
 
 
 slivar_filters = [
