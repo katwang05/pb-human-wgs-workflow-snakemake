@@ -30,7 +30,7 @@ rule deepvariant_make_examples:
             --track_ref_reads \
             --phase_reads \
             --partition_size=25000 \
-            --phase_reads_region_padding=5000 \
+            --max_reads_per_partition=600 \
             --alt_aligned_pileup=diff_channels \
             --add_hp_channel \
             --sort_by_haplotypes \
