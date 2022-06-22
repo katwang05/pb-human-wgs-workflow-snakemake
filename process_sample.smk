@@ -4,7 +4,7 @@ from pathlib import Path
 
 configfile: "workflow/reference.yaml"         # reference information
 configfile: "workflow/config.yaml"            # general configuration
-shell.prefix(f"set -o pipefail; umask 002; export TMPDIR={config['tmpdir']}; export SINGULARITY_TMPDIR={config['tmpdir']}; ")  # set g+w
+shell.prefix(f"set -o pipefail; umask 002; ")  # set g+w
 
 
 # sample will be provided at command line with `--config sample=$SAMPLE`
@@ -71,6 +71,13 @@ if 'whatshap' in config['sample_targets']:
                     for suffix in ['phased.vcf.gz', 'phased.vcf.gz.tbi', 'phased.gtf',
                                    'phased.tsv', 'phased.blocklist',
                                    'haplotagged.bam', 'haplotagged.bam.bai']])
+
+# generate phased 5mC CpG pileups
+include: 'rules/sample_5mc_cpg_pileup.smk'
+if '5mc_cpg_pileup' in config['sample_targets']:
+    targets.extend([f"samples/{sample}/5mc_cpg_pileup/{sample}.{ref}.{infix}.denovo.{suffix}"
+                    for infix in ['combined', 'hap1', 'hap2']
+                    for suffix in ['bed', 'bw', 'mincov10.bed', 'mincov10.bw']])
 
 # genotype STRs
 include: 'rules/sample_tandem_genotypes.smk'

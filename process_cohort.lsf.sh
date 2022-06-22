@@ -1,15 +1,12 @@
 #!/bin/bash
-#$ -A 100humans
-#$ -cwd
-#$ -V
-#$ -j y
-#$ -S /bin/bash
-#$ -q default
-#$ -pe smp 4
-#$ -o ./cluster_logs/sge-$JOB_NAME-$JOB_ID-$HOSTNAME.out
-#$ -e ./cluster_logs/sge-$JOB_NAME-$JOB_ID-$HOSTNAME.err
+#BSUB -cwd
+#BSUB -L /bin/bash
+#BSUB -q default
+#BSUB -n 4
+#BSUB -o ./cluster_logs/lsf-$LSB_JOBNAME-$LSB_JOBID-$HOSTNAME.out
+#BSUB -e ./cluster_logs/lsf-$LSB_JOBNAME-$LSB_JOBID-$HOSTNAME.err
 
-# USAGE: qsub workflow/process_cohort.sge.sh <cohort_id>
+# USAGE: bsub workflow/process_cohort.lsf.sh <cohort_id>
 
 COHORT=$1
 
@@ -29,5 +26,5 @@ source workflow/variables.env
 snakemake \
     --config cohort=${COHORT} \
     --nolock \
-    --profile workflow/profiles/sge \
+    --profile workflow/profiles/lsf \
     --snakefile workflow/process_cohort.smk
