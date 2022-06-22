@@ -17,7 +17,6 @@ rule deepvariant_make_examples:
     container: f"docker://google/deepvariant:{config['DEEPVARIANT_VERSION']}"
     params:
         vsc_min_fraction_indels = "0.12",
-        pileup_image_width = 199,
         shard = lambda wildcards: wildcards.shard,
         reads = ','.join(abams)
     message: "Executing {rule}: DeepVariant make_examples {wildcards.shard} for {input.bams}."
@@ -26,7 +25,7 @@ rule deepvariant_make_examples:
         (/opt/deepvariant/bin/make_examples \
             --norealign_reads \
             --vsc_min_fraction_indels {{params.vsc_min_fraction_indels}} \
-            --pileup_image_width {{params.pileup_image_width}} \
+            --pileup_image_width 199 \
             --track_ref_reads \
             --phase_reads \
             --partition_size=25000 \
@@ -35,6 +34,7 @@ rule deepvariant_make_examples:
             --add_hp_channel \
             --sort_by_haplotypes \
             --parse_sam_aux_fields \
+            --min_mapping_quality=1 \
             --mode calling \
             --ref {{input.reference}} \
             --reads {{params.reads}} \
@@ -55,8 +55,7 @@ rule deepvariant_call_variants_gpu:
     threads: 8
     shell:
         f"""
-        (echo "CUDA_VISIBLE_DEVICES=" $CUDA_VISIBLE_DEVICES; \
-        /opt/deepvariant/bin/call_variants \
+        (/opt/deepvariant/bin/call_variants \
             --outfile {{output}} \
             --examples samples/{sample}/deepvariant/examples/examples.tfrecord@{config['N_SHARDS']}.gz \
             --checkpoint {{params.model}}) > {{log}} 2>&1
