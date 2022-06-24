@@ -103,7 +103,6 @@ rule slivar_small_variant:
 skip_list = [
     'non_coding_transcript',
     'intron',
-    'non_coding_transcript',
     'non_coding',
     'upstream_gene',
     'downstream_gene',

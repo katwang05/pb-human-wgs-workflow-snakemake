@@ -474,7 +474,7 @@ The following are some of the key output files from these workflows. The haploty
 
 ---
 
-## Troubleshooting
+## Troubleshooting and FAQ
 
 This section includes problems frequently encountered by users of this pipeline. Please file a repo issue or contact one of the repo contributors if the following troubleshooting tips don't address your concerns.
 
@@ -495,6 +495,15 @@ This section includes problems frequently encountered by users of this pipeline.
 
 **Problem:** No space left on device  
 **Solution:** You may need to clean out `/tmp` on the host that produced this error. If this issue persists, change the TMPDIR variable in `workflow/variables.env` to a directory that has sufficient space for temporary files.
+
+**Question:** Can I use the CHM13 (T2T) reference genome?  
+**Answer:** We don't officially support the chm13v2.0 reference and we haven't developed all of the tertiary analysis resources (variant frequency databases, segdup/repeat/oddregion bed files, etc) to accompany this reference. Even though we don't support it, here is some rough code to get you started:
+
+1. Download the recommended reference fasta [here](https://s3-us-west-2.amazonaws.com/human-pangenomics/T2T/CHM13/assemblies/analysis_set/chm13v2.0_maskedY_rCRS.fa.gz) and index with `samtools faidx chm13v2.0_maskedY_rCRS.fa.gz`.
+2. Create a chromosome length file from index for phasing with `cut -f1,2 chm13v2.0_maskedY_rCRS.fa.fai > chm13v2.0_maskedY_rCRS.chr_lengths.txt`. Drop the CHM13 reference, index, and chr_lengths file in the `reference/` folder, and update `fasta`, `index`, and `chr_lengths` paths in `workflow/reference.yaml` to match.
+3. Download the correct tandem repeats bed file for structural variant calling from [here](https://raw.githubusercontent.com/PacificBiosciences/pbsv/master/annotations/human_chm13v2.0_maskedY_rCRS.trf.bed), drop in the `reference/` folder, and update the `tr_bed` path in `workflow/reference.yaml` to match.
+4. In `config.yaml`, disable `kmers` and `tandem-genotypes` under `sample_targets` and `svpack` and `slivar` under `cohort_targets`.
+5. See the [CHM13 repo](https://github.com/marbl/CHM13#downloads), for additional resources that might support your analysis, including liftoff annotations, ensembl, refseq, ClinVar, and dbSNP.
 
 [Back to top](#TOP)
 

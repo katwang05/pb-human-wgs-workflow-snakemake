@@ -7,8 +7,8 @@
     - id: family17-01  # sample id of the proband
       sex: MALE
       parents: 
-      - family17-02  # sample id of the mother
       - family17-03  # sample id of the father
+      - family17-02  # sample id of the mother
   unaffecteds:
     - id: family17-02  # sample id of the mother
       sex: FEMALE
