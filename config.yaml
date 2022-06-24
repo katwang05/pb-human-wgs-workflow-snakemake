@@ -29,10 +29,14 @@ kmer_length: 21
 # pass along extra parameters to pbsv that will override the hifi defaults
 pbsv_call_extra: ""
 
-# deepvariant
-#DEEPVARIANT_VERSION: '1.4.0'  # CPU-only, will require modifying threads for call_variants rules
-DEEPVARIANT_VERSION: '1.4.0-gpu'  # GPU
+# deepvariant 
 N_SHARDS: 256
+# deepvariant call_variants can be run as GPU or CPU-only
+# additional configuration specific to job schedulers can be found variables.env
+# change to True if you don't have GPUs available
+cpu_only: False
+deepvariant_cpu_version: '1.4.0'
+deepvariant_gpu_version: '1.4.0-gpu'
 
 # glnexus
 GLNEXUS_VERSION: 'v1.4.1'

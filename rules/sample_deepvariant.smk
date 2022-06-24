@@ -3,10 +3,12 @@ localrules: deepvariant_bcftools_stats, deepvariant_bcftools_roh
 
 shards = [f"{x:05}" for x in range(config['N_SHARDS'])]
 
-# for gpu rules, if running as cpu_only set threads to high number (1000) to ensure other jobs aren't started at the same time
-cpu_only = config.get('cpu_only', False)
-deepvariant_threads = 1000 if cpu_only else 8
-deepvariant_version = config['DEEPVARIANT_CPU_VERSION'] if cpu_only else config['DEEPVARIANT_GPU_VERSION']
+# variables affected by config['cpu_only']
+deepvariant_version = config['deepvariant_cpu_version'] if config['cpu_only'] else config['deepvariant_gpu_version']
+call_variants_threads = 256 if config['cpu_only'] else 8
+call_variants_extra = os.environ.get('DEEPVARIANT_CPU_EXTRA', '') if config['cpu_only'] else os.environ['DEEPVARIANT_GPU_EXTRA']
+call_variants_partition =  os.environ['PARTITION'] if config['cpu_only'] else os.environ['DEEPVARIANT_GPU_PARTITION']
+
 
 rule deepvariant_make_examples:
     input:
@@ -24,7 +26,7 @@ rule deepvariant_make_examples:
         shard = lambda wildcards: wildcards.shard,
         reads = ','.join(abams)
     resources: 
-        extra = '--constraint=avx512'
+        extra = os.environ.get('DEEPVARIANT_AVX2_CONSTRAINT', '')
     message: "Executing {rule}: DeepVariant make_examples {wildcards.shard} for {input.bams}."
     shell:
         f"""
@@ -50,7 +52,7 @@ rule deepvariant_make_examples:
         """
 
 
-rule deepvariant_call_variants_gpu:
+rule deepvariant_call_variants:
     input: expand(f"samples/{sample}/deepvariant/examples/examples.tfrecord-{{shard}}-of-{config['N_SHARDS']:05}.gz", shard=shards)
     output: temp(f"samples/{sample}/deepvariant/{sample}.{ref}.call_variants_output.tfrecord.gz")
     log: f"samples/{sample}/logs/deepvariant/call_variants/{sample}.{ref}.log"
@@ -58,10 +60,10 @@ rule deepvariant_call_variants_gpu:
     container: f"docker://google/deepvariant:{deepvariant_version}"
     params: model = "/opt/models/pacbio/model.ckpt"
     message: "Executing {rule}: DeepVariant call_variants for {input}."
-    threads: deepvariant_threads
+    threads: call_variants_threads
     resources:
-        partition = 'ml',
-        extra = '--gpus=1'
+        partition = call_variants_partition,
+        extra = call_variants_extra
     shell:
         f"""
         (/opt/deepvariant/bin/call_variants \
@@ -88,7 +90,7 @@ rule deepvariant_postprocess_variants:
     container: f"docker://google/deepvariant:{deepvariant_version}"
     threads: 4
     resources: 
-        extra = '--constraint=avx512'
+        extra = os.environ.get('DEEPVARIANT_AVX2_CONSTRAINT','')
     message: "Executing {rule}: DeepVariant postprocess_variants for {input.tfrecord}."
     shell:
         f"""
