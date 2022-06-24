@@ -9,7 +9,6 @@ rule samtools_fasta:
     benchmark: f"samples/{sample}/benchmarks/samtools/fasta/{{movie}}.tsv"
     threads: 4
     conda: "envs/samtools.yaml"
-    message: "Converting {input} to {output}."
     shell: "(samtools fasta -@ 3 {input} > {output}) > {log} 2>&1"
 
 
@@ -19,7 +18,6 @@ rule seqtk_fastq_to_fasta:
     log: f"samples/{sample}/logs/seqtk/seq/{{movie}}.log"
     benchmark: f"samples/{sample}/benchmarks/seqtk/seq/{{movie}}.tsv"
     conda: "envs/seqtk.yaml"
-    message: "Converting {input} to {output}."
     shell: "(seqtk seq -A {input} > {output}) > {log} 2>&1"
 
 
@@ -43,7 +41,6 @@ rule hifiasm_assemble:
     conda: "envs/hifiasm.yaml"
     params: prefix = f"samples/{sample}/hifiasm/{sample}.asm"
     threads: 48
-    message: f"Assembling sample {sample} from {{input}}"
     shell: "(hifiasm -o {params.prefix} -t {threads} {input}) > {log} 2>&1"
 
 
@@ -53,7 +50,6 @@ rule gfa2fa:
     log: f"samples/{sample}/logs/gfa2fa/{sample}.asm.bp.{{infix}}.log"
     benchmark: f"samples/{sample}/benchmarks/gfa2fa/{sample}.asm.bp.{{infix}}.tsv"
     conda: "envs/gfatools.yaml"
-    message: "Extracting fasta from assembly {input}."
     shell: "(gfatools gfa2fa {input} > {output}) 2> {log}"
 
 
@@ -64,7 +60,6 @@ rule bgzip_fasta:
     benchmark: f"samples/{sample}/benchmarks/bgzip/{sample}.asm.bp.{{infix}}.tsv"
     threads: 4
     conda: "envs/htslib.yaml"
-    message: "Compressing {input}."
     shell: "(bgzip --threads {threads} {input}) > {log} 2>&1"
 
 
@@ -74,7 +69,6 @@ rule asm_stats:
     log: f"samples/{sample}/logs/asm_stats/{sample}.asm.bp.{{infix}}.fasta.log"
     benchmark: f"samples/{sample}/benchmarks/asm_stats/{sample}.asm.bp.{{infix}}.fasta.tsv"
     conda: "envs/k8.yaml"
-    message: "Calculating stats for {input}."
     shell: f"(k8 workflow/scripts/calN50/calN50.js -f {config['ref']['index']} {{input}} > {{output}}) > {{log}} 2>&1"
 
 
@@ -94,7 +88,6 @@ rule align_hifiasm:
         samtools_mem = "8G"
     threads: 16  # minimap2 + samtools(+3)
     conda: "envs/align_hifiasm.yaml"
-    message: "Aligning {input.query} to {input.target}."
     shell:
         """
         (minimap2 -t {params.minimap2_threads} {params.minimap2_args} -R '{params.readgroup}' {input.target} {input.query} \
@@ -112,7 +105,6 @@ rule htsbox:
     benchmark: f"samples/{sample}/benchmarks/htsbox/{sample}.asm.tsv"
     params: '-q20'
     conda: "envs/htsbox.yaml"
-    message: "Calling variants from {{input.bam}} using htsbox."
     shell: "(htsbox pileup {params} -c -f {input.reference} {input.bam} > {output})> {log} 2>&1"
 
 
@@ -124,5 +116,4 @@ rule htsbox_bcftools_stats:
     params: f"--fasta-ref {config['ref']['fasta']} -s samples/{sample}/hifiasm/{sample}.asm.{ref}.bam"
     threads: 4
     conda: "envs/bcftools.yaml"
-    message: "Executing {rule}: Calculating VCF statistics for {input}."
     shell: "(bcftools stats --threads 3 {params} {input} > {output}) > {log} 2>&1"

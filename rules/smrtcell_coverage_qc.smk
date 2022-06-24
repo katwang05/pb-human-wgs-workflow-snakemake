@@ -7,7 +7,6 @@ rule infer_sex_from_coverage:
     log: f"samples/{{sample}}/logs/quality_control/infer_sex_from_coverage.{{movie}}.{ref}.log"
     benchmark: f"samples/{{sample}}/benchmarks/quality_control/infer_sex_from_coverage.{{movie}}.{ref}.tsv"
     conda: "envs/pandas.yaml"
-    message: "Executing {rule}: Inferring chromosomal sex from mosdepth coverage summary {input}."
     shell: "(python3 workflow/scripts/infer_sex_from_coverage.py {input} > {output}) > {log} 2>&1"
 
 
@@ -17,7 +16,6 @@ rule calculate_m2_ratio:
     log: f"samples/{{sample}}/logs/quality_control/calculate_M2_ratio.{{movie}}.{ref}.log"
     benchmark: f"samples/{{sample}}/benchmarks/quality_control/calculate_M2_ratio.{{movie}}.{ref}.tsv"
     conda: "envs/pandas.yaml"
-    message: "Executing {rule}: Calculating chrM:chr2 ratio from mosdepth coverage summary {input}."
     shell: "(python3 workflow/scripts/calculate_M2_ratio.py {input} > {output}) > {log} 2>&1"
 
 
@@ -29,7 +27,6 @@ rule calculate_gc_coverage:
     log: f"samples/{{sample}}/logs/quality_control/calculate_gc_coverage.{{movie}}.{ref}.log"
     benchmark: f"samples/{{sample}}/benchmarks/quality_control/calculate_gc_coverage.{{movie}}.{ref}.tsv"
     conda: "envs/gc_coverage.yaml"
-    message: "Executing {rule}: Calculating GC coverage distribution from mosdepth coverage by region for {input.mosdepth_regions}."
     shell:
         """
         (bedtools nuc -fi {input.ref} -bed {input.mosdepth_regions} \

@@ -19,7 +19,6 @@ rule pbsv_discover:
         region = lambda wildcards: wildcards.region,
         loglevel = "INFO"
     conda: "envs/pbsv.yaml"
-    message: "Executing {rule}: Discovering structural variant signatures in {wildcards.region} from {input.bam}."
     shell:
         """
         (pbsv discover {params.extra} \
@@ -43,7 +42,6 @@ rule pbsv_call:
         loglevel = "INFO"
     threads: 8
     conda: "envs/pbsv.yaml"
-    message: "Executing {rule}: Calling structural variants in {wildcards.region} from SVSIGs: {input.svsigs}"
     shell:
         """
         (pbsv call {params.extra} \
@@ -61,7 +59,6 @@ rule bcftools_concat_pbsv_vcf:
     log: f"samples/{sample}/logs/bcftools/concat/{sample}.{ref}.pbsv.vcf.log"
     benchmark: f"samples/{sample}/benchmarks/bcftools/concat/{sample}.{ref}.pbsv.vcf.tsv"
     conda: "envs/bcftools.yaml"
-    message: "Executing {rule}: Concatenating pbsv VCFs: {input.calls}"
     shell: "(bcftools concat -a -o {output} {input.calls}) > {log} 2>&1"
 
 
