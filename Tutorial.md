@@ -43,6 +43,7 @@ The primary goals of this workflow are variant discovery, variant calling, and a
 | :---   | :---   |
 | [pbsv](https://github.com/PacificBiosciences/pbsv)              | call structural variants |
 | [DeepVariant](https://github.com/google/deepvariant)            | call small variants |
+| [pb-cpg-tools](https://github.com/PacificBiosciences/pb-CpG-tools) | obtain list of CpG/5mC sites and modification probabilities |
 | [WhatsHap](https://github.com/whatshap/whatshap/)               | phase small variants and generate merged, haplotagged BAM|
 | [BCFtools RoH](https://samtools.github.io/bcftools/howtos/roh-calling.html)| detect regions of autozygosity in merged, haplotagged BAM using a hidden Markov model |
 | [mosdepth](https://github.com/brentp/mosdepth)        | calculate aligned coverage depth of merged, haplotagged BAM |
@@ -346,6 +347,7 @@ After `process_smrtcells` and `process_sample` have finished, the top level dire
 $ tree -dL 1 samples/<sample_id>
 
 samples/<sample_id>
+├── 5mc_cpg_pileup  # only if HiFi reads are provided in BAM format and contain methylation tags (Ml)
 ├── aligned
 ├── benchmarks
 ├── deepvariant
@@ -424,6 +426,11 @@ The following are some of the key output files from these workflows.
     - Genome assembly aligned to the reference + associated index file (.bai)
   - `hifiasm/*.asm.GRCh38.htsbox.vcf.gz` and `.tbi`
     - Variants called after aligned assembly to the reference + associated index file (.tbi)
+- **CpG/5mC Scores**
+  - `5mc_cpg_pileup/*.denovo.bed` and `5mc_cpg_pileup/*.denovo.bw`
+    - Bed and bigwig files for the complete read set and each haplotype showing methylation probabilities for CG sites with a minimum coverage of 4 (default)
+  - `5mc_cpg_pileup/*.denovo.mincov10.bed` and `5mc_cpg_pileup/*.denovo.mincov10.bw`
+    - Bed and bigwig files for the complete read set and each haplotype showing methylation probabilities for CG sites with a minimum coverage of 10
 
 ### Key outputs in `cohorts/`
 

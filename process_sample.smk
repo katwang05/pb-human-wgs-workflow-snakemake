@@ -1,11 +1,24 @@
 import re
 from pathlib import Path
+import pysam
 
 
 configfile: "workflow/reference.yaml"         # reference information
 configfile: "workflow/config.yaml"            # general configuration
 shell.prefix(f"set -o pipefail; umask 002; ")  # set g+w
 
+def check_for_ml_tag(bams):
+    """
+    Check if any BAM in list of BAMs contains the Ml tag.
+    """
+    for bam in bams:
+        with pysam.AlignmentFile(bam, "rb", check_sq=False) as bamfile:
+            for read in bamfile:
+                Ml_tag = read.has_tag("Ml")
+                read = next(bamfile)
+                if Ml_tag:
+                    return Ml_tag
+    return Ml_tag
 
 # sample will be provided at command line with `--config sample=$SAMPLE`
 sample = config['sample']
@@ -72,12 +85,15 @@ if 'whatshap' in config['sample_targets']:
                                    'phased.tsv', 'phased.blocklist',
                                    'haplotagged.bam', 'haplotagged.bam.bai']])
 
-# generate phased 5mC CpG pileups
+# generate phased 5mC CpG pileups (if Ml tag is present in any of the aligned BAMs)
 include: 'rules/sample_5mc_cpg_pileup.smk'
 if '5mc_cpg_pileup' in config['sample_targets']:
-    targets.extend([f"samples/{sample}/5mc_cpg_pileup/{sample}.{ref}.{infix}.denovo.{suffix}"
-                    for infix in ['combined', 'hap1', 'hap2']
-                    for suffix in ['bed', 'bw', 'mincov10.bed', 'mincov10.bw']])
+    if check_for_ml_tag(abams):
+        targets.extend([f"samples/{sample}/5mc_cpg_pileup/{sample}.{ref}.{infix}.denovo.{suffix}"
+                        for infix in ['combined', 'hap1', 'hap2']
+                        for suffix in ['bed', 'bw', 'mincov10.bed', 'mincov10.bw']])
+    else:
+        print(f"Warning: {sample} has no Ml tag in any of the aligned BAMs. Skipping 5mc_cpg_pileup.")
 
 # genotype STRs
 include: 'rules/sample_tandem_genotypes.smk'
