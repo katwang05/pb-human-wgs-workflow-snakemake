@@ -6,7 +6,6 @@ rule reformat_ensembl_gff:
     log: "logs/reformat_ensemble_gff.log"
     params: url = config['ref']['ensembl_gff_url']
     conda: "envs/htslib.yaml"
-    message: "Executing {rule}: Downloaded and reformatting ensembl GFF to {output}."
     shell:
         """
         (wget -qO - {params.url} | zcat \
@@ -19,7 +18,6 @@ rule generate_lof_lookup:
     output: config['lof_lookup']
     log: "logs/generate_lof_lookup.log"
     params: url = config['lof_lookup_url']
-    message: "Executing {rule}: Generating a lookup table for loss-of-function metrics at {output}."
     shell:
         """
         (wget -qO - {params.url} | zcat | cut -f 1,21,24 | tail -n+2 \
@@ -31,7 +29,6 @@ rule generate_clinvar_lookup:
     output: config['clinvar_lookup']
     log: "logs/generate_clinvar_lookup.log"
     params: url = config['clinvar_lookup_url']
-    message: "Executing {rule}: Generating a lookup table for clinvar gene descriptions at {output}."
     shell: "(wget -qO - {params.url} | cut -f 2,5 | grep -v ^$'\t' > {output}) > {log} 2>&1"
 
 
@@ -44,7 +41,6 @@ rule bcftools_norm:
     benchmark: f"cohorts/{cohort}/benchmarks/bcftools/norm/{cohort}.{ref}.deepvariant.phased.vcf.tsv"
     params: f"--multiallelics - --output-type b --fasta-ref {config['ref']['fasta']}"
     conda: "envs/bcftools.yaml"
-    message: "Executing {rule}: Splitting multiallelic sites and normalizing indels for {input.vcf}."
     shell: "(bcftools norm {params} {input.vcf} | bcftools sort --output-type b -o {output}) > {log} 2>&1"
 
 
@@ -83,7 +79,6 @@ rule slivar_small_variant:
     params: filters = slivar_filters
     threads: 12
     conda: "envs/slivar.yaml"
-    message: "Executing {rule}: Annotating {input.bcf} and applying filters."
     shell:
         """
         (pslivar --processes {threads} \
@@ -124,7 +119,6 @@ rule slivar_compound_hets:
     benchmark: f"cohorts/{cohort}/benchmarks/slivar/compound-hets/{cohort}.{ref}.deepvariant.phased.slivar.compound-hets.vcf.tsv"
     params: skip = ",".join(skip_list)
     conda: "envs/slivar.yaml"
-    message: f"Executing {{rule}}: Finding compound hets in {cohort}."
     shell:
         """
         (slivar compound-hets \
@@ -163,7 +157,6 @@ rule slivar_tsv:
     benchmark: f"cohorts/{cohort}/benchmarks/slivar/tsv/{cohort}.{ref}.tsv"
     params: info = "".join([f"--info-field {x} " for x in info_fields])
     conda: "envs/slivar.yaml"
-    message: "Executing {rule}: Converting annotated VCFs to TSVs for easier interpretation."
     shell:
         """
         (slivar tsv \

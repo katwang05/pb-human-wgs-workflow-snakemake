@@ -8,7 +8,6 @@ rule split_deepvariant_vcf:
     benchmark: f"samples/{sample}/benchmarks/tabix/query/{sample}.{ref}.{{region}}.deepvariant.vcf.tsv"
     params: region = lambda wildcards: wildcards.region, extra = '-h'
     conda: "envs/htslib.yaml"
-    message: "Executing {rule}: Extracting {wildcards.region} variants from {input}."
     shell: "tabix {params.extra} {input} {params.region} > {output} 2> {log}"
 
 
@@ -24,7 +23,6 @@ rule whatshap_phase:
     benchmark: f"samples/{sample}/benchmarks/whatshap/phase/{sample}.{ref}.{{chromosome}}.tsv"
     params: chromosome = lambda wildcards: wildcards.chromosome, extra = "--indels"
     conda: "envs/whatshap.yaml"
-    message: "Executing {rule}: Phasing {input.vcf} using {input.phaseinput} for chromosome {wildcards.chromosome}."
     shell:
         """
         (whatshap phase {params.extra} \
@@ -45,7 +43,6 @@ rule whatshap_bcftools_concat:
     benchmark: f"samples/{sample}/benchmarks/bcftools/concat/{sample}.{ref}.whatshap.tsv"
     params: "-a -Oz"
     conda: "envs/bcftools.yaml"
-    message: "Executing {rule}: Concatenating WhatsHap phased VCFs: {input.calls}"
     shell: "bcftools concat {params} -o {output} {input.calls} > {log} 2>&1"
 
 
@@ -61,7 +58,6 @@ rule whatshap_stats:
     log: f"samples/{sample}/logs/whatshap/stats/{sample}.{ref}.log"
     benchmark: f"samples/{sample}/benchmarks/whatshap/stats/{sample}.{ref}.tsv"
     conda: "envs/whatshap.yaml"
-    message: "Executing {rule}: Calculating phasing stats for {input.vcf}."
     shell:
         """
         (whatshap stats \
@@ -84,7 +80,6 @@ rule whatshap_haplotag:
     benchmark: f"samples/{sample}/benchmarks/whatshap/haplotag/{sample}.{ref}.{{movie}}.tsv"
     params: "--tag-supplementary"
     conda: "envs/whatshap.yaml"
-    message: "Executing {rule}: Haplotagging {input.bam} using phase information from {input.vcf}."
     shell:
         """
         (whatshap haplotag {params} \
@@ -101,7 +96,6 @@ rule merge_haplotagged_bams:
     benchmark: f"samples/{sample}/benchmarks/samtools/merge/{sample}.{ref}.haplotag.tsv"
     threads: 8
     conda: "envs/samtools.yaml"
-    message: "Executing {rule}: Merging {input}."
     shell:
         """
         if [[ "{input}" =~ " " ]]

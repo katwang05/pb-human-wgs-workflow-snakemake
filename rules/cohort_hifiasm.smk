@@ -9,7 +9,6 @@ rule samtools_fasta:
     benchmark: f"cohorts/{cohort}/benchmarks/samtools/fasta/{{sample}}/{{movie}}.tsv"
     threads: 4
     conda: "envs/samtools.yaml"
-    message: "Executing {rule}: Converting {input} to {output}."
     shell: "(samtools fasta -@ 3 {input} > {output}) > {log} 2>&1"
 
 
@@ -19,7 +18,6 @@ rule seqtk_fastq_to_fasta:
     log: f"cohorts/{cohort}/logs/seqtk/seq/{{sample}}/{{movie}}.log"
     benchmark: f"cohorts/{cohort}/benchmarks/seqtk/seq/{{sample}}/{{movie}}.tsv"
     conda: "envs/seqtk.yaml"
-    message: "Executing {rule}: Converting {input} to {output}."
     shell: "(seqtk seq -A {input} > {output}) > {log} 2>&1"
 
 
@@ -30,7 +28,6 @@ rule yak_count:
     benchmark: f"cohorts/{cohort}/benchmarks/yak/{{sample}}.yak.tsv"
     conda: "envs/yak.yaml"
     threads: 32
-    message: "Executing {rule}: Counting k-mers in {input}."
     shell: "(yak count -t {threads} -o {output} {input}) > {log} 2>&1"
 
 
@@ -64,7 +61,6 @@ rule hifiasm_assemble:
         parent2 = lambda wildcards: trio_dict[wildcards.sample]['parent2'],
         extra = "-c1 -d1"
     threads: 48
-    message: "Executing {rule}: Assembling sample {wildcards.sample} from {input.fasta} and parental k-mers."
     shell:
             """
             (
@@ -81,7 +77,6 @@ rule gfa2fa:
     log: f"cohorts/{cohort}/logs/gfa2fa/{{sample}}.asm.dip.{{infix}}.log"
     benchmark: f"cohorts/{cohort}/benchmarks/gfa2fa/{{sample}}.asm.dip.{{infix}}.tsv"
     conda: "envs/gfatools.yaml"
-    message: "Executing {rule}: Extracting fasta from assembly {input}."
     shell: "(gfatools gfa2fa {input} > {output}) 2> {log}"
 
 
@@ -92,7 +87,6 @@ rule bgzip_fasta:
     benchmark: f"cohorts/{cohort}/benchmarks/bgzip/{{sample}}.asm.dip.{{infix}}.tsv"
     threads: 4
     conda: "envs/htslib.yaml"
-    message: "Executing {rule}: Compressing {input}."
     shell: "(bgzip --threads {threads} {input}) > {log} 2>&1"
 
 
@@ -114,7 +108,6 @@ rule asm_stats:
     log: f"cohorts/{cohort}/logs/asm_stats/{{sample}}.asm.dip.{{infix}}.fasta.log"
     benchmark: f"cohorts/{cohort}/benchmarks/asm_stats/{{sample}}.asm.dip.{{infix}}.fasta.tsv"
     conda: "envs/k8.yaml"
-    message: "Executing {rule}: Calculating stats for {input}."
     shell: f"(k8 workflow/scripts/calN50/calN50.js -f {config['ref']['index']} {{input}} > {{output}}) > {{log}} 2>&1"
 
 
@@ -134,7 +127,6 @@ rule align_hifiasm:
         samtools_mem = "8G"
     threads: 16  # minimap2 + samtools(+3)
     conda: "envs/align_hifiasm.yaml"
-    message: "Executing {rule}: Aligning {input.query} to {input.target}."
     shell:
         """
         (minimap2 -t {params.minimap2_threads} {params.minimap2_args} -R '{params.readgroup}' {input.target} {input.query} \
@@ -149,5 +141,4 @@ rule samtools_index_bam:
     benchmark: f"cohorts/{cohort}/logs/samtools/index/{{prefix}}.tsv"
     threads: 4
     conda: "envs/samtools.yaml"
-    message: "Executing {rule}: Indexing {input}."
     shell: "(samtools index -@ 3 {input}) > {log} 2>&1"

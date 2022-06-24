@@ -9,7 +9,6 @@ rule calculate_sample_gc_coverage:
     log: f"samples/{{sample}}/logs/quality_control/calculate_gc_coverage.{{sample}}.{ref}.log"
     benchmark: f"samples/{{sample}}/benchmarks/quality_control/calculate_gc_coverage.{{sample}}.{ref}.tsv"
     conda: "envs/gc_coverage.yaml"
-    message: "Executing {rule}: Calculating GC coverage distribution from mosdepth coverage by region for {input.mosdepth_regions}."
     shell:
         """
         (bedtools nuc -fi {input.ref} -bed {input.mosdepth_regions} \

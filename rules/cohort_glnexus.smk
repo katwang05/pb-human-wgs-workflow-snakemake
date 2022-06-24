@@ -14,7 +14,6 @@ rule glnexus:
         mem_gbytes = 192,
     container: f"docker://ghcr.io/dnanexus-rnd/glnexus:{config['GLNEXUS_VERSION']}"
     threads: 24
-    message: f"Executing {{rule}}: Joint calling variants from {cohort} cohort."
     shell:
         """
         (rm -rf {output.scratch_dir} && \
@@ -32,7 +31,6 @@ rule bcftools_bcf2vcf:
     params: "--threads 4 -Oz"
     threads: 4
     conda: "envs/bcftools.yaml"
-    message: "Executing {rule}: Converting GLnexus BCF to VCF for {input}."
     shell: "(bcftools view {params} {input} -o {output}) > {log} 2>&1"
 
 
@@ -45,7 +43,6 @@ rule split_glnexus_vcf:
     benchmark: f"cohorts/{cohort}/benchmarks/tabix/query/{cohort}.{ref}.{{region}}.glnexus.vcf.tsv"
     params: region = lambda wildcards: wildcards.region, extra = '-h'
     conda: "envs/htslib.yaml"
-    message: "Executing {rule}: Extracting {wildcards.region} variants from {input}."
     shell: "(tabix {params.extra} {input.vcf} {params.region} > {output}) 2> {log}"
 
 
@@ -63,7 +60,6 @@ rule whatshap_phase:
         chromosome = lambda wildcards: wildcards.chromosome,
         extra = "--indels"
     conda: "envs/whatshap.yaml"
-    message: "Executing {rule}: Phasing {input.vcf} using {input.phaseinput} for chromosome {wildcards.chromosome}."
     shell:
         """
         (whatshap phase {params.extra} \
@@ -87,7 +83,6 @@ rule whatshap_bcftools_concat:
     benchmark: f"cohorts/{cohort}/benchmarks/bcftools/concat/{cohort}.{ref}.whatshap.tsv"
     params: "-a -Oz"
     conda: "envs/bcftools.yaml"
-    message: "Executing {rule}: Concatenating WhatsHap phased VCFs: {input.calls}"
     shell: "(bcftools concat {params} -o {output} {input.calls}) > {log} 2>&1"
 
 
@@ -103,7 +98,6 @@ rule whatshap_stats:
     log: f"cohorts/{cohort}/logs/whatshap/stats/{cohort}.{ref}.log"
     benchmark: f"cohorts/{cohort}/benchmarks/whatshap/stats/{cohort}.{ref}.tsv"
     conda: "envs/whatshap.yaml"
-    message: "Executing {rule}: Calculating phasing stats for {input.vcf}."
     shell:
         """
         (whatshap stats \

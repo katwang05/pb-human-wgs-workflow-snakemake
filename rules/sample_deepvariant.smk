@@ -27,7 +27,6 @@ rule deepvariant_make_examples:
         reads = ','.join(abams)
     resources: 
         extra = os.environ.get('DEEPVARIANT_AVX2_CONSTRAINT', '')
-    message: "Executing {rule}: DeepVariant make_examples {wildcards.shard} for {input.bams}."
     shell:
         f"""
         (/opt/deepvariant/bin/make_examples \
@@ -59,7 +58,6 @@ rule deepvariant_call_variants:
     benchmark: f"samples/{sample}/benchmarks/deepvariant/call_variants/{sample}.{ref}.tsv"
     container: f"docker://google/deepvariant:{deepvariant_version}"
     params: model = "/opt/models/pacbio/model.ckpt"
-    message: "Executing {rule}: DeepVariant call_variants for {input}."
     threads: call_variants_threads
     resources:
         partition = call_variants_partition,
@@ -91,7 +89,6 @@ rule deepvariant_postprocess_variants:
     threads: 4
     resources: 
         extra = os.environ.get('DEEPVARIANT_AVX2_CONSTRAINT','')
-    message: "Executing {rule}: DeepVariant postprocess_variants for {input.tfrecord}."
     shell:
         f"""
         (/opt/deepvariant/bin/postprocess_variants \
@@ -111,7 +108,6 @@ rule deepvariant_bcftools_stats:
     params: f"--fasta-ref {config['ref']['fasta']} --apply-filters PASS -s {sample}"
     threads: 4
     conda: "envs/bcftools.yaml"
-    message: "Executing {rule}: Calculating VCF statistics for {input}."
     shell: "(bcftools stats --threads 3 {params} {input} > {output}) > {log} 2>&1"
 
 
@@ -122,7 +118,6 @@ rule deepvariant_bcftools_roh:
     benchmark: f"samples/{sample}/benchmarks/bcftools/stats/{sample}.{ref}.deepvariant.vcf.tsv"
     params: default_allele_frequency = 0.4
     conda: "envs/bcftools.yaml"
-    message: "Executing {rule}: Calculating runs of homozygosity for {input}."
     shell:
         """
         (echo -e "#chr\tstart\tend\tqual" > {output}
