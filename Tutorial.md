@@ -274,17 +274,21 @@ We have provided sample submission scripts for three different schedulers (SLURM
 
 ### 5. Run Analysis
 
-The following instructions are specific to a slurm cluster (i.e. `sbatch`). Users of SGE, LSF, or related job management systems will need to use appropriate job submission execution and flags.
-
-Do not try running an anlysis until you have completed the previous steps!
+First, create a conda environment with the required packages. This environment only needs to be created once.
 
 ```text
 # create conda environment
-# you only need to create this environment one time
-conda env create --file workflow/environment.yaml
+conda install mamba -n base -c conda-forge
+conda activate base
+mamba create -c conda-forge -c bioconda -n pb-human-wgs snakemake=6.15.3 lockfile=0.12.2 pysam=0.16.0.1 python=3
+```
 
+To run the workflows on a cluster that uses the Slurm job scheduler, use the following commands. Users of SGE, LSF, or related job management systems will need to use appropriate job submission execution and flags.
+
+```text
 # activate conda environment
-conda activate pb-human-wgs-workflow
+# do this every time you want to run any part of workflow
+conda activate pb-human-wgs
 
 # confirm that you're in the analysis directory you created (parent directory of workflow)
 
@@ -300,15 +304,12 @@ sbatch workflow/process_sample.slurm.sh <sample_id>
 sbatch workflow/process_cohort.slurm.sh <cohort_id>
 ```
 
-For local execution:
+For local execution, use the following commands.
 
 ```text
-# create conda environment
-# you only need to create this environment one time
-conda env create --file workflow/environment.yaml
-
 # activate conda environment
-conda activate pb-human-wgs-workflow
+# do this every time you want to run any part of workflow
+conda activate pb-human-wgs
 
 # confirm that you're in the analysis directory you created (parent directory of workflow)
 
@@ -317,7 +318,7 @@ bash workflow/process_smrtcells.local.sh
 
 # process_smrtcells must finish before launching next step!
 # run process_sample on a single sample
-sbatch workflow/process_sample.local.sh <sample_id>
+bash workflow/process_sample.local.sh <sample_id>
 
 # process_smrtcells & process_sample must finish for all samples in cohort before next step!
 # run process_cohort on a single cohort described in cohort.yaml
