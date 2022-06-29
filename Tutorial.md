@@ -499,7 +499,7 @@ This section includes problems frequently encountered by users of this pipeline.
 **Solution:**  Make sure you've provided input files in `smrtcells/ready/<sample_id>` The folder <sample_id> must be created with `mkdir` (not symlinked) although files inside this folder can be symlinked.
 
 **Problem:** I don't have access to GPUs  
-**Solution:**  The local execution launch scripts are CPU-only, so one option is to follow instructions for local execution. Alternatively, if you need to run this workflow on a cluster, simply add `cpu_only: True` to `workflow/config.yaml`. Additional changes to resources like threads/cores may be required if jobs fail to finish.
+**Solution:**  Make sure the line `cpu_only: True` is in `workflow/config.yaml`. Additional changes may be required in `workflow/variables.env` depending on your job scheduler. You might also need to reduce `max-threads` in `workflow/profiles/<profile>/config.yaml` if you don't have access to a 256-core machine.
 
 **Problem:** No space left on device  
 **Solution:** You may need to clean out `/tmp` on the host that produced this error. If this issue persists, change the TMPDIR variable in `workflow/variables.env` to a directory that has sufficient space for temporary files.
