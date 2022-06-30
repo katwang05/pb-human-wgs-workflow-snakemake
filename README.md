@@ -6,6 +6,6 @@ Documentation for the PacBio Human WGS Workflow (snakemake implementation) is av
 
 ## Contributors
 
+- Juniper Lake ([@juniper-lake](https://github.com/juniper-lake))
 - William Rowell ([@williamrowell](https://github.com/williamrowell))
 - Aaron Wenger ([@amwenger](https://github.com/amwenger))
-- Juniper Lake ([@juniper-lake](https://github.com/juniper-lake))
