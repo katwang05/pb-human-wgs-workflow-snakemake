@@ -8,7 +8,6 @@ rule bgzip_vcf:
     benchmark: f"samples/{sample}/benchmarks/bgzip/{{prefix}}.tsv"
     threads: 2
     conda: "envs/htslib.yaml"
-    message: "Executing {rule}: Compressing {input}."
     shell: "(bgzip --threads {threads} {input}) > {log} 2>&1"
 
 
@@ -19,7 +18,6 @@ rule tabix_vcf:
     benchmark: f"samples/{sample}/benchmarks/tabix/index/{{prefix}}.tsv"
     params: "-p vcf"
     conda: "envs/htslib.yaml"
-    message: "Executing {rule}: Indexing {input}."
     shell: "tabix {params} {input} > {log} 2>&1"
 
 
@@ -30,5 +28,4 @@ rule samtools_index_bam:
     benchmark: f"samples/{sample}/logs/samtools/index/{{prefix}}.tsv"
     threads: 4
     conda: "envs/samtools.yaml"
-    message: "Executing {rule}: Indexing {input}."
     shell: "(samtools index -@ 3 {input}) > {log} 2>&1"

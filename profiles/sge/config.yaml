@@ -3,6 +3,7 @@ rerun-incomplete: true
 keep-going: true
 printshellcmds: true
 local-cores: 4
+max-threads: 256
 jobs: 500
 max-jobs-per-second: 1
 use-conda: true
@@ -14,6 +15,7 @@ cluster: qsub -j y -cwd -V
               -A {resources.account}
               -q {resources.partition}
               -pe smp {threads}
+              -l mem_free={resources.mem_mb}M
               -o {resources.out}
               -e {resources.err} {resources.extra}
 default-resources: 
@@ -21,6 +23,7 @@ default-resources:
   - partition='$PARTITION'
   - tmpdir=system_tmpdir
   - threads=1
+  - mem_mb=8000*threads
   - out='./cluster_logs/sge-$JOB_NAME-$JOB_ID-$HOSTNAME.out'
   - err='./cluster_logs/sge-$JOB_NAME-$JOB_ID-$HOSTNAME.err'
   - extra=''

@@ -15,7 +15,6 @@ rule mosdepth:
         extra = "--no-per-base --use-median"
     threads: 4
     conda: "envs/mosdepth.yaml"
-    message: "Executing {rule}: Calculating coverage of {input.bam} using mosdepth."
     shell:
         """
         (mosdepth --threads {threads} --by {params.by} \

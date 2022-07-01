@@ -43,6 +43,7 @@ The primary goals of this workflow are variant discovery, variant calling, and a
 | :---   | :---   |
 | [pbsv](https://github.com/PacificBiosciences/pbsv)              | call structural variants |
 | [DeepVariant](https://github.com/google/deepvariant)            | call small variants |
+| [pb-cpg-tools](https://github.com/PacificBiosciences/pb-CpG-tools) | obtain list of CpG/5mC sites and modification probabilities |
 | [WhatsHap](https://github.com/whatshap/whatshap/)               | phase small variants and generate merged, haplotagged BAM|
 | [BCFtools RoH](https://samtools.github.io/bcftools/howtos/roh-calling.html)| detect regions of autozygosity in merged, haplotagged BAM using a hidden Markov model |
 | [mosdepth](https://github.com/brentp/mosdepth)        | calculate aligned coverage depth of merged, haplotagged BAM |
@@ -273,17 +274,21 @@ We have provided sample submission scripts for three different schedulers (SLURM
 
 ### 5. Run Analysis
 
-The following instructions are specific to a slurm cluster (i.e. `sbatch`). Users of SGE, LSF, or related job management systems will need to use appropriate job submission execution and flags.
-
-Do not try running an anlysis until you have completed the previous steps!
+First, create a conda environment with the required packages. This environment only needs to be created once.
 
 ```text
 # create conda environment
-# you only need to create this environment one time
-conda env create --file workflow/environment.yaml
+conda install mamba -n base -c conda-forge
+conda activate base
+mamba create -c conda-forge -c bioconda -n pb-human-wgs snakemake=6.15.3 lockfile=0.12.2 pysam=0.16.0.1 python=3
+```
 
+To run the workflows on a cluster that uses the Slurm job scheduler, use the following commands. Users of SGE, LSF, or related job management systems will need to use appropriate job submission execution and flags.
+
+```text
 # activate conda environment
-conda activate pb-human-wgs-workflow
+# do this every time you want to run any part of workflow
+conda activate pb-human-wgs
 
 # confirm that you're in the analysis directory you created (parent directory of workflow)
 
@@ -299,15 +304,12 @@ sbatch workflow/process_sample.slurm.sh <sample_id>
 sbatch workflow/process_cohort.slurm.sh <cohort_id>
 ```
 
-For local execution:
+For local execution, use the following commands.
 
 ```text
-# create conda environment
-# you only need to create this environment one time
-conda env create --file workflow/environment.yaml
-
 # activate conda environment
-conda activate pb-human-wgs-workflow
+# do this every time you want to run any part of workflow
+conda activate pb-human-wgs
 
 # confirm that you're in the analysis directory you created (parent directory of workflow)
 
@@ -316,7 +318,7 @@ bash workflow/process_smrtcells.local.sh
 
 # process_smrtcells must finish before launching next step!
 # run process_sample on a single sample
-sbatch workflow/process_sample.local.sh <sample_id>
+bash workflow/process_sample.local.sh <sample_id>
 
 # process_smrtcells & process_sample must finish for all samples in cohort before next step!
 # run process_cohort on a single cohort described in cohort.yaml
@@ -346,6 +348,7 @@ After `process_smrtcells` and `process_sample` have finished, the top level dire
 $ tree -dL 1 samples/<sample_id>
 
 samples/<sample_id>
+├── 5mc_cpg_pileup  # only if HiFi reads are provided in BAM format and contain methylation tags (Ml)
 ├── aligned
 ├── benchmarks
 ├── deepvariant
@@ -424,6 +427,11 @@ The following are some of the key output files from these workflows.
     - Genome assembly aligned to the reference + associated index file (.bai)
   - `hifiasm/*.asm.GRCh38.htsbox.vcf.gz` and `.tbi`
     - Variants called after aligned assembly to the reference + associated index file (.tbi)
+- **CpG/5mC Scores**
+  - `5mc_cpg_pileup/*.denovo.bed` and `5mc_cpg_pileup/*.denovo.bw`
+    - Bed and bigwig files for the complete read set and each haplotype showing methylation probabilities for CG sites with a minimum coverage of 4 (default)
+  - `5mc_cpg_pileup/*.denovo.mincov10.bed` and `5mc_cpg_pileup/*.denovo.mincov10.bw`
+    - Bed and bigwig files for the complete read set and each haplotype showing methylation probabilities for CG sites with a minimum coverage of 10
 
 ### Key outputs in `cohorts/`
 
@@ -474,7 +482,7 @@ The following are some of the key output files from these workflows. The haploty
 
 ---
 
-## Troubleshooting
+## Troubleshooting and FAQ
 
 This section includes problems frequently encountered by users of this pipeline. Please file a repo issue or contact one of the repo contributors if the following troubleshooting tips don't address your concerns.
 
@@ -491,10 +499,19 @@ This section includes problems frequently encountered by users of this pipeline.
 **Solution:**  Make sure you've provided input files in `smrtcells/ready/<sample_id>` The folder <sample_id> must be created with `mkdir` (not symlinked) although files inside this folder can be symlinked.
 
 **Problem:** I don't have access to GPUs  
-**Solution:**  The local execution launch scripts are CPU-only, so one option is to follow instructions for local execution. Alternatively, if you need to run this workflow on a cluster, simply add `cpu_only: True` to `workflow/config.yaml`. Additional changes to resources like threads/cores may be required if jobs fail to finish.
+**Solution:**  Make sure the line `cpu_only: True` is in `workflow/config.yaml`. Additional changes may be required in `workflow/variables.env` depending on your job scheduler. You might also need to reduce `max-threads` in `workflow/profiles/<profile>/config.yaml` if you don't have access to a 256-core machine.
 
 **Problem:** No space left on device  
 **Solution:** You may need to clean out `/tmp` on the host that produced this error. If this issue persists, change the TMPDIR variable in `workflow/variables.env` to a directory that has sufficient space for temporary files.
+
+**Question:** Can I use the CHM13 (T2T) reference genome?  
+**Answer:** We don't officially support the chm13v2.0 reference and we haven't developed all of the tertiary analysis resources (variant frequency databases, segdup/repeat/oddregion bed files, etc) to accompany this reference. Even though we don't support it, here is some rough code to get you started:
+
+1. Download the recommended reference fasta [here](https://s3-us-west-2.amazonaws.com/human-pangenomics/T2T/CHM13/assemblies/analysis_set/chm13v2.0_maskedY_rCRS.fa.gz) and index with `samtools faidx chm13v2.0_maskedY_rCRS.fa.gz`.
+2. Create a chromosome length file from index for phasing with `cut -f1,2 chm13v2.0_maskedY_rCRS.fa.fai > chm13v2.0_maskedY_rCRS.chr_lengths.txt`. Drop the CHM13 reference, index, and chr_lengths file in the `reference/` folder, and update `fasta`, `index`, and `chr_lengths` paths in `workflow/reference.yaml` to match.
+3. Download the correct tandem repeats bed file for structural variant calling from [here](https://raw.githubusercontent.com/PacificBiosciences/pbsv/master/annotations/human_chm13v2.0_maskedY_rCRS.trf.bed), drop in the `reference/` folder, and update the `tr_bed` path in `workflow/reference.yaml` to match.
+4. In `config.yaml`, disable `kmers` and `tandem-genotypes` under `sample_targets` and `svpack` and `slivar` under `cohort_targets`.
+5. See the [CHM13 repo](https://github.com/marbl/CHM13#downloads), for additional resources that might support your analysis, including liftoff annotations, ensembl, refseq, ClinVar, and dbSNP.
 
 [Back to top](#TOP)
 

@@ -51,7 +51,6 @@ rule slivar_svpack_tsv:
     benchmark: f"cohorts/{cohort}/benchmarks/slivar/tsv/{cohort}.{ref}.pbsv.svpack.tsv"
     params: info = "".join([f"--info-field {x} " for x in info_fields])
     conda: "envs/slivar.yaml"
-    message: "Executing {rule}: Converting annotated VCFs to TSVs for easier interpretation."
     shell:
         """
         (slivar tsv \

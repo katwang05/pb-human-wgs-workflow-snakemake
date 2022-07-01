@@ -18,7 +18,6 @@ rule pbmm2_align_ubam:
         loglevel = "INFO"
     threads: 24
     conda: "envs/pbmm2.yaml"
-    message: "Executing {rule}: Aligning {input.query} to {input.reference} using pbmm2 with --preset {params.preset} {params.extra}."
     shell:
         """
         (pbmm2 align --num-threads {threads} \
@@ -49,7 +48,6 @@ rule pbmm2_align_fastq:
         loglevel = "INFO"
     threads: 24
     conda: "envs/pbmm2.yaml"
-    message: "Executing {rule}: Aligning {input.query} to {input.reference} using pbmm2 with --preset {params.preset} {params.extra}."
     shell:
         """
         (pbmm2 align --num-threads {threads} \

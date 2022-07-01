@@ -20,7 +20,7 @@ mkdir -p logs
 
 # execute snakemake
 snakemake \
-    --config sample=${SAMPLE} cpu_only=True \
+    --config sample=${SAMPLE} \
     --nolock \
     --profile workflow/profiles/local \
     --snakefile workflow/process_sample.smk \

@@ -8,7 +8,6 @@ rule smrtcell_stats_ubam:
     log: "samples/{sample}/logs/smrtcell_stats/{movie}.log"
     benchmark: "samples/{sample}/benchmarks/smrtcell_stats/{movie}.tsv"
     conda: "envs/smrtcell_stats.yaml"
-    message: "Executing {rule}: Read length and quality stats for {input}."
     shell: "(python3 workflow/scripts/extract_read_length_and_qual.py {input} > {output}) > {log} 2>&1"
 
 
@@ -18,7 +17,6 @@ rule smrtcell_stats_fastq:
     log: "samples/{sample}/logs/smrtcell_stats/{movie}.log"
     benchmark: "samples/{sample}/benchmarks/smrtcell_stats/{movie}.tsv"
     conda: "envs/smrtcell_stats.yaml"
-    message: "Executing {rule}: Read length and quality stats for {input}."
     shell: "(python3 workflow/scripts/extract_read_length_and_qual.py {input} > {output}) > {log} 2>&1"
 
 
@@ -27,7 +25,6 @@ rule smrtcell_summary_stats:
     output:
         rlsummary = "samples/{sample}/smrtcell_stats/{movie}.read_length_summary.tsv",
         rqsummary = "samples/{sample}/smrtcell_stats/{movie}.read_quality_summary.tsv"
-    message: "Executing {rule}: Summarize read length and quality stats for {wildcards.movie}."
     log: "samples/{sample}/logs/smrtcell_stats/{movie}.summary.log"
     benchmark: "samples/{sample}/benchmarks/smrtcell_stats/{movie}.summary.tsv"
     conda: "envs/smrtcell_stats.yaml"

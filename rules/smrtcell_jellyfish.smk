@@ -8,7 +8,6 @@ rule samtools_fasta:
     benchmark: "samples/{sample}/benchmarks/samtools/fasta/{movie}.tsv"
     threads: 4
     conda: "envs/samtools.yaml"
-    message: "Executing {rule}: Converting {input} to {output}."
     shell: "(samtools fasta -@ 3 {input} > {output}) > {log} 2>&1"
 
 
@@ -18,7 +17,6 @@ rule seqtk_fastq_to_fasta:
     log: "samples/{sample}/logs/seqtk/seq/{movie}.log"
     benchmark: "samples/{sample}/benchmarks/seqtk/seq/{movie}.tsv"
     conda: "envs/seqtk.yaml"
-    message: "Executing {rule}: Converting {input} to {output}."
     shell: "(seqtk seq -A {input} > {output}) > {log} 2>&1"
 
 
@@ -33,7 +31,6 @@ rule jellyfish_count:
         extra = "--canonical --disk"
     threads: 24
     conda: "envs/jellyfish.yaml"
-    message: "Executing {rule}: Counting {params.kmer_length}mers in {input}."
     shell:
         """
         (jellyfish count {params.extra} \
@@ -52,7 +49,6 @@ rule dump_modimers:
     benchmark: "samples/{sample}/benchmarks/dump_modimers/{movie}.tsv"
     conda: "envs/jellyfish.yaml"
     threads: 2
-    message: "Executing {rule}: Saving modimers for {input}."
     shell:
         """
         (jellyfish dump -c -t {input} \

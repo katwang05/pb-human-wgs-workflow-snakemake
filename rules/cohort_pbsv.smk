@@ -14,7 +14,6 @@ rule pbsv_call:
         loglevel = "INFO"
     threads: 8
     conda: "envs/pbsv.yaml"
-    message: "Executing {rule}: Calling structural variants in {wildcards.region} from SVSIGs: {input.svsigs}"
     shell:
         """
         (pbsv call {params.extra} \
@@ -32,5 +31,4 @@ rule bcftools_concat_pbsv_vcf:
     log: f"cohorts/{cohort}/logs/bcftools/concat/{cohort}.{ref}.pbsv.vcf.log"
     benchmark: f"cohorts/{cohort}/benchmarks/bcftools/concat/{cohort}.{ref}.pbsv.vcf.tsv"
     conda: "envs/bcftools.yaml"
-    message: "Executing {rule}: Concatenating pbsv VCFs: {input.calls}"
     shell: "(bcftools concat -a -o {output} {input.calls}) > {log} 2>&1"

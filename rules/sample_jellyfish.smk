@@ -4,7 +4,6 @@ rule jellyfish_merge:
     log: f"samples/{sample}/logs/jellyfish/merge/{sample}.log"
     benchmark: f"samples/{sample}/benchmarks/jellyfish/merge/{sample}.tsv"
     conda: "envs/jellyfish.yaml"
-    message: "Executing {rule}: Merging per-smrtcell jellyfish counts to create {output}."
     shell:
         f"""
         if [[ "{{input}}" =~ " " ]]
