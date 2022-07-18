@@ -24,7 +24,7 @@ source workflow/variables.env
 
 # execute snakemake
 snakemake \
-    --config cohort=${COHORT} \
+    --config "cohort='$COHORT'" \
     --nolock \
     --profile workflow/profiles/slurm \
     --snakefile workflow/process_cohort.smk
