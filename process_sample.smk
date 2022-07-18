@@ -13,12 +13,12 @@ def check_for_ml_tag(bams):
     """
     for bam in bams:
         with pysam.AlignmentFile(bam, "rb", check_sq=False) as bamfile:
-            for read in bamfile:
-                Ml_tag = read.has_tag("Ml")
-                read = next(bamfile)
-                if Ml_tag:
-                    return Ml_tag
-    return Ml_tag
+            for record in bamfile:
+                if record.has_tag("Ml"):
+                    # BAM has basemod tag
+                    return True
+    # only reaches this stage if no BAMs contain basemod tag
+    return False
 
 # sample will be provided at command line with `--config sample=$SAMPLE`
 sample = config['sample']
