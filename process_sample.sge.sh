@@ -26,7 +26,7 @@ source workflow/variables.env
 
 # execute snakemake
 snakemake \
-    --config sample=${SAMPLE} \
+    --config "sample='$SAMPLE'" \
     --nolock \
     --profile workflow/profiles/sge \
     --snakefile workflow/process_sample.smk

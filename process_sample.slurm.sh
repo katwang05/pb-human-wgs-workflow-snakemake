@@ -23,7 +23,7 @@ source workflow/variables.env
 
 # execute snakemake
 snakemake \
-    --config sample=${SAMPLE} \
+    --config "sample='$SAMPLE'" \
     --nolock \
     --profile workflow/profiles/slurm \
     --snakefile workflow/process_sample.smk

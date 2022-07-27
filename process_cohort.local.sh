@@ -21,7 +21,7 @@ mkdir -p logs
 
 # execute snakemake
 snakemake \
-    --config cohort=${COHORT} \
+    --config "cohort='$COHORT'" \
     --nolock \
     --profile workflow/profiles/local \
     --snakefile workflow/process_cohort.smk \
