@@ -79,7 +79,7 @@ rule whatshap_haplotag:
     log: f"samples/{sample}/logs/whatshap/haplotag/{sample}.{ref}.{{movie}}.log"
     benchmark: f"samples/{sample}/benchmarks/whatshap/haplotag/{sample}.{ref}.{{movie}}.tsv"
     params: "--tag-supplementary"
-	threads: 4
+    threads: 4
     conda: "envs/whatshap.yaml"
     shell:
         """
