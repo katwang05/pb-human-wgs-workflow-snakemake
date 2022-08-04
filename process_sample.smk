@@ -7,17 +7,15 @@ configfile: "workflow/reference.yaml"         # reference information
 configfile: "workflow/config.yaml"            # general configuration
 shell.prefix(f"set -o pipefail; umask 002; ")  # set g+w
 
-def check_for_ml_tag(bams):
+def check_header_for_primrose(bams):
     """
-    Check if any BAM in list of BAMs contains the Ml tag.
+    Check if any BAM in list of BAMs was processed with primrose
     """
     for bam in bams:
         with pysam.AlignmentFile(bam, "rb", check_sq=False) as bamfile:
-            for record in bamfile:
-                if record.has_tag("Ml"):
-                    # BAM has basemod tag
-                    return True
-    # only reaches this stage if no BAMs contain basemod tag
+            # BAMs with basemods should have `primrose` in header
+            return any([_['ID']=='primrose' for _ in bamfile.header.as_dict()['PG']])
+    # if no BAMs have primrose in header
     return False
 
 # sample will be provided at command line with `--config sample=$SAMPLE`
@@ -88,12 +86,12 @@ if 'whatshap' in config['sample_targets']:
 # generate phased 5mC CpG pileups (if Ml tag is present in any of the aligned BAMs)
 include: 'rules/sample_5mc_cpg_pileup.smk'
 if '5mc_cpg_pileup' in config['sample_targets']:
-    if check_for_ml_tag(abams):
+    if check_header_for_primrose(abams):
         targets.extend([f"samples/{sample}/5mc_cpg_pileup/{sample}.{ref}.{infix}.denovo.{suffix}"
                         for infix in ['combined', 'hap1', 'hap2']
                         for suffix in ['bed', 'bw', 'mincov10.bed', 'mincov10.bw']])
     else:
-        print(f"Warning: {sample} has no Ml tag in any of the aligned BAMs. Skipping 5mc_cpg_pileup.")
+        print(f"Warning: {sample} has no aBAMs that have been processed with primrose. Skipping 5mc_cpg_pileup.")
 
 # genotype STRs
 include: 'rules/sample_tandem_genotypes.smk'
