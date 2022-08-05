@@ -14,7 +14,7 @@ def check_header_for_primrose(bams):
     for bam in bams:
         with pysam.AlignmentFile(bam, "rb", check_sq=False) as bamfile:
             # BAMs with basemods should have `primrose` in header
-            return any([_['ID']=='primrose' for _ in bamfile.header.as_dict()['PG']])
+            return 'primrose' in [_['ID'] for _ in bamfile.header.as_dict()['PG']]
     # if no BAMs have primrose in header
     return False
 
