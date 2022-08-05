@@ -14,7 +14,7 @@ def check_for_ml_tag(bams):
     for bam in bams:
         with pysam.AlignmentFile(bam, "rb", check_sq=False) as bamfile:
             for record in bamfile:
-                if record.has_tag("Ml"):
+                if record.has_tag("Ml") or record.has_tag("ML"):
                     # BAM has basemod tag
                     return True
     # only reaches this stage if no BAMs contain basemod tag
