@@ -24,7 +24,7 @@ def get_samples(cohortyaml=config['cohort_yaml'], cohort_id=config['cohort']):
         if affectedstatus in c:
             for individual in range(len(c[affectedstatus])):
                 samples.append(c[affectedstatus][individual]['id'])
-    return samples
+    return [str(x) for x in samples]
 
 def get_trios(cohortyaml=config['cohort_yaml'], cohort_id=config['cohort']):
     """Find all trios associated with cohort."""
