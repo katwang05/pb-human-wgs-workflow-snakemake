@@ -83,7 +83,7 @@ if 'whatshap' in config['sample_targets']:
                                    'phased.tsv', 'phased.blocklist',
                                    'haplotagged.bam', 'haplotagged.bam.bai']])
 
-# generate phased 5mC CpG pileups (if Ml tag is present in any of the aligned BAMs)
+# generate phased 5mC CpG pileups (if any aBAM has been processed with primrose.)
 include: 'rules/sample_5mc_cpg_pileup.smk'
 if '5mc_cpg_pileup' in config['sample_targets']:
     if check_header_for_primrose(abams):
