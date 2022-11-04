@@ -100,6 +100,13 @@ if 'tandem-genotypes' in config['sample_targets']:
     targets.extend([f"samples/{sample}/tandem-genotypes/{sample}.tandem-genotypes.{suffix}"
                     for suffix in ['txt', 'pdf', 'absolute.txt', 'dropouts.txt']])
 
+# genotype tandem repeats with TRGT
+include: 'rules/sample_trgt.smk'
+if 'trgt' in config['sample_targets']:
+    # trgt VCF and BAM
+    targets.extend([f"samples/{sample}/trgt/{sample}.{ref}.trgt.{suffix}"
+                    for suffix in ['dropouts.txt', 'spanning.bam', 'vcf.gz']])
+
 # calculate coverage of haplotagged sample aBAM with mosdepth
 include: 'rules/sample_mosdepth.smk'
 include: 'rules/sample_gc_coverage.smk'
