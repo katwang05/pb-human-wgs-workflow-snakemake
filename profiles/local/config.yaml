@@ -7,5 +7,6 @@ use-conda: true
 conda-frontend: mamba
 latency-wait: 120
 use-singularity: true
-default-resources: 
+singularity-args: '--nv '
+default-resources:
   - tmpdir=system_tmpdir
