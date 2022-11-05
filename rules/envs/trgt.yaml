@@ -3,4 +3,4 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - trgt=0.3.3
+  - trgt=0.3.4
