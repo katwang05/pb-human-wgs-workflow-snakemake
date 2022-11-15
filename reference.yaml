@@ -13,6 +13,7 @@ ref:
   tg_list_url: 'https://github.com/mcfrith/tandem-genotypes/raw/master/hg38-disease-tr.txt'
   tg_list: 'resources/tandem-genotypes/hg38-disease-tr.txt'
   tg_bed: 'resources/tandem-genotypes/hg38-disease-tr.slop.bed'
+  trgt_bed: 'reference/human_GRCh38_no_alt_analysis_set.trgt.bed'
   gnomad_gnotate: 'resources/slivar/gnomad.hg38.v3.custom.zip'
   hprc_dv_gnotate: 'resources/slivar/hprc.deepvariant.glnexus.hg38.v1.zip'
   eee_vcf: 'resources/eee/EEE_SV-Pop_1.ALL.sites.20181204.vcf.gz'

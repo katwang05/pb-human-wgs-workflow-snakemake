@@ -1,0 +1,6 @@
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - trgt=0.3.4

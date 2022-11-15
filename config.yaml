@@ -13,6 +13,7 @@ sample_targets:
   - kmers  # req: kmers in config['smrtcells_targets']
   - assembly
   - tandem-genotypes  # req: whatshap
+  - trgt  # req: whatshap
   - 5mc_cpg_pileup # req: whatshap; also requires uBAM input with basemods
 
 cohort_targets:
