@@ -48,6 +48,7 @@ The primary goals of this workflow are variant discovery, variant calling, and a
 | [BCFtools RoH](https://samtools.github.io/bcftools/howtos/roh-calling.html)| detect regions of autozygosity in merged, haplotagged BAM using a hidden Markov model |
 | [mosdepth](https://github.com/brentp/mosdepth)        | calculate aligned coverage depth of merged, haplotagged BAM |
 | [tandem-genotypes](https://github.com/mcfrith/tandem-genotypes), [scripts/check_tandem_repeat_coverage.py](https://github.com/PacificBiosciences/pb-human-wgs-workflow-snakemake/blob/main/scripts/check_tandem_repeat_coverage.py) | genotype known tandem repeat expansions associated with disease |
+| [trgt](https://github.com/PacificBiosciences/trgt) | genotype tandem repeats |
 | [hifiasm](https://github.com/chhylp123/hifiasm)                 | assemble reads |
 | [calN50](https://github.com/lh3/calN50)                      | calculate assembly stats |
 | [seqtk](https://github.com/lh3/seqtk) | split assembly contigs into 200kb chunks to facilitate visualization of aligned assembly with IGV |
@@ -360,10 +361,11 @@ samples/<sample_id>
 ├── pbsv
 ├── smrtcell_stats
 ├── tandem-genotypes
+├── trgt
 ├── whatshap
 └── whatshap_intermediate
 
-13 directories
+15 directories
 ```
 
 The following are some of the key output files from these workflows.
@@ -412,6 +414,12 @@ The following are some of the key output files from these workflows.
   - `tandem-genotypes/*.tandem-genotypes.absolute.txt`
     - Same as above, but with repeat counts adjusted by adding estimated number of reads in the reference
   - `tandem-genotypes/*.tandem-genotypes.dropouts.txt`
+    - Regions with insufficient coverage to genotype are listed here
+  - `trgt/*.trgt.vcf.gz` and `tbi`
+    - Genotypes for ~170k STR loci
+  - `trgt/*.trgt.spanning.bam`
+    - Fragments of HiFi reads spanning ~170k STR loci
+  - `trgt/*.trgt.dropouts.txt`
     - Regions with insufficient coverage to genotype are listed here
 - **Assembly**
   - `hifiasm/*.asm.bp.hap1.p_ctg.fasta.gz`
@@ -551,6 +559,7 @@ The following tools and methods should also be cited if this workflow generates 
 | Snakemake | Mölder, Felix, et al. "Sustainable data analysis with Snakemake." F1000Research 10 (2021). |
 | svpack | [svpack GitHub repo](https://github.com/PacificBiosciences/svpack) |
 | tandem-genotypes | Mitsuhashi, Satomi, et al. "Tandem-genotypes: robust detection of tandem repeat expansions from long DNA reads." Genome biology 20.1 (2019): 1-17. |
+| trgt | [trgt GitHub repo](https://github.com/PacificBiosciences/trgt) |
 | WhatsHap | Martin, Marcel, et al. "WhatsHap: fast and accurate read-based phasing." BioRxiv (2016): 085050. |
 
 [Back to top](#TOP)
