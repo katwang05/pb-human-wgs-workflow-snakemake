@@ -12,12 +12,14 @@ latency-wait: 120
 use-singularity: true
 singularity-args: '--nv '
 cluster: bsub -cwd 
+              -P {resources.account}
               -q {resources.partition}
               -n {threads}
               -M {resources.mem_mb}
               -o {resources.out}
               -e {resources.err} {resources.extra}
-default-resources: 
+default-resources:
+  - account='$ACCOUNT'
   - partition='$PARTITION'
   - tmpdir=system_tmpdir
   - threads=1
