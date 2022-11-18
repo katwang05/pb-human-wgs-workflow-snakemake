@@ -51,6 +51,7 @@ slivar_filters = [
                 && INFO.gnomad_nhomalt <= {config['max_gnomad_nhomalt']} \
                 && INFO.hprc_nhomalt <= {config['max_hprc_nhomalt']}'""",
         "--family-expr 'recessive:fam.every(segregating_recessive)'",
+        "--family-expr 'x_recessive:(variant.CHROM == \"chrX\") && fam.every(segregating_recessive_x)'",
         f"""--family-expr 'dominant:fam.every(segregating_dominant) \
                        && INFO.gnomad_ac <= {config['max_gnomad_ac']} \
                        && INFO.hprc_ac <= {config['max_hprc_ac']}'""",
