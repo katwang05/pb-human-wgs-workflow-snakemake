@@ -1,6 +1,6 @@
 smrtcells_targets:
   - alignment
-  - stats  # req: alignment
+  - stats
   - coverage  # req: alignment
   - coverage_qc  # req: alignment
   - kmers
