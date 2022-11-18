@@ -51,12 +51,7 @@ slivar_filters = [
                 && INFO.gnomad_nhomalt <= {config['max_gnomad_nhomalt']} \
                 && INFO.hprc_nhomalt <= {config['max_hprc_nhomalt']}'""",
         "--family-expr 'recessive:fam.every(segregating_recessive)'",
-        "--family-expr 'x_recessive:(variant.CHROM == \"chrX\") && fam.every(segregating_recessive_x)'",
         f"""--family-expr 'dominant:fam.every(segregating_dominant) \
-                       && INFO.gnomad_ac <= {config['max_gnomad_ac']} \
-                       && INFO.hprc_ac <= {config['max_hprc_ac']}'""",
-        f"""--family-expr 'x_dominant:(variant.CHROM == \"chrX\") \
-                       && fam.every(segregating_dominant_x) \
                        && INFO.gnomad_ac <= {config['max_gnomad_ac']} \
                        && INFO.hprc_ac <= {config['max_hprc_ac']}'""",
         f"--sample-expr 'comphet_side:sample.het && sample.GQ > {config['min_gq']}'",
@@ -162,9 +157,7 @@ rule slivar_tsv:
         (slivar tsv \
             {params.info} \
             --sample-field dominant \
-            --sample-field x_dominant \
             --sample-field recessive \
-            --sample-field x_recessive \
             --csq-field BCSQ \
             --gene-description {input.lof_lookup} \
             --gene-description {input.clinvar_lookup} \
