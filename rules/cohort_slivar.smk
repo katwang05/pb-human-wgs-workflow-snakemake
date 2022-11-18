@@ -159,6 +159,7 @@ rule slivar_tsv:
             {params.info} \
             --sample-field dominant \
             --sample-field recessive \
+            --sample-field x_recessive \
             --csq-field BCSQ \
             --gene-description {input.lof_lookup} \
             --gene-description {input.clinvar_lookup} \
