@@ -17,9 +17,16 @@ SAMPLE=$1
 umask 002
 
 # add lockfile to directory to prevent multiple simultaneous jobs
-LOCKFILE=samples/${SAMPLE}/process_sample.lock
-lockfile -r 0 ${LOCKFILE} || exit 1
-trap "rm -f ${LOCKFILE}; exit" SIGINT SIGTERM ERR EXIT
+SAMPLEDIR="cohorts/${SAMPLE}"
+LOCKFILE="$SAMPLEDIR/process_cohort.lock"
+
+if [ -f "$LOCKFILE" ]; then
+    echo "lockfile $LOCKFILE already exists. Remove lockfile and try again." && exit 1
+else
+    mkdir -p "$SAMPLEDIR" || exit 1
+    touch "$LOCKFILE" || exit 1
+fi
+trap 'rm -f ${LOCKFILE}; exit' SIGINT SIGTERM ERR EXIT
 
 # get variables from workflow/variables.env
 source workflow/variables.env
