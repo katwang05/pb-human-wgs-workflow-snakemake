@@ -281,7 +281,7 @@ First, create a conda environment with the required packages. This environment o
 # create conda environment
 conda install mamba -n base -c conda-forge
 conda activate base
-mamba create -c conda-forge -c bioconda -n pb-human-wgs snakemake=6.15.3 lockfile=0.12.2 pysam=0.16.0.1 python=3
+mamba create -c conda-forge -c bioconda -n pb-human-wgs snakemake=6.15.3 pysam=0.16.0.1 python=3
 ```
 
 To run the workflows on a cluster that uses the Slurm job scheduler, use the following commands. Users of SGE, LSF, or related job management systems will need to use appropriate job submission execution and flags.
@@ -497,7 +497,7 @@ This section includes problems frequently encountered by users of this pipeline.
 **Problem:** Workflow won't run and gives error `snakemake: command not found`  
 **Solution:** Make sure the conda environment is installed and activated before trying to run the workflow. Instructions [here](#5-run-analysis).
 
-**Problem:** Workflow won't run and gives error `lockfile: Try praying, giving up on "samples/<sample_id>/process_sample.lock"`  
+**Problem:** Workflow won't run and gives error `lockfile $LOCKFILE already exists. Remove lockfile and try again.`  
 **Solution:** If the workflows are still running or a job failed, the lockfile may not have been properly removed. Either wait for the workflow to finish or, if the job failed, manually remove the lockfile. This error can also be caused if the input file folder doesn't exist. For example, if you try to run `process_sample` without first running `process_smrtcells`.
 
 **Problem:** Trio assembly has one haplotype that is significantly larger than the other  
