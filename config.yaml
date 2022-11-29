@@ -62,9 +62,7 @@ max_hprc_ac: 4  # for 'dominant' variants
 min_gq: 5
 
 # lookups for slivar tsv annotations
-lof_lookup_url: 'https://storage.googleapis.com/gnomad-public/release/2.1.1/constraint/gnomad.v2.1.1.lof_metrics.by_gene.txt.bgz'
 lof_lookup: 'resources/slivar/lof_lookup.txt'
-clinvar_lookup_url: 'ftp://ftp.ncbi.nlm.nih.gov/pub/clinvar/gene_condition_source_id'
 clinvar_lookup: 'resources/slivar/clinvar_gene_desc.txt'
 
 # cohorts yaml
