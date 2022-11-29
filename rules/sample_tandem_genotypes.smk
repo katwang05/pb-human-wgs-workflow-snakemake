@@ -1,39 +1,4 @@
-localrules: download_tg_list, generate_tg_bed, tandem_genotypes_absolute_count, tandem_genotypes_plot, tandem_repeat_coverage_dropouts
-
-
-rule download_tg_list:
-    output: config['ref']['tg_list']
-    log: "logs/download_tg_list.log"
-    params: url = config['ref']['tg_list_url']
-    shell: "(wget -qO - {params.url} > {output}) > {log} 2>&1"
-
-
-rule generate_tg_bed:
-    input:
-        tg_list = config['ref']['tg_list'],
-        fai = config['ref']['index']
-    output: config['ref']['tg_bed']
-    log: "logs/generate_tg_bed.log"
-    conda: "envs/bedtools.yaml"
-    params: slop = 1000
-    shell: 
-        """
-        (grep -v '^#' {input.tg_list} | sort -k1,1V -k2,2g \
-        | bedtools slop -b {params.slop} -g {input.fai} -i - \
-        > {output}) > {log} 2>&1
-        """
-
-
-rule generate_last_index:
-    input: config['ref']['fasta']
-    output:
-        [f"{config['ref']['last_index']}.{suffix}"
-         for suffix in ['bck', 'des', 'prj', 'sds', 'ssp', 'suf', 'tis']]
-    log: "logs/generate_last_index.log"
-    conda: "envs/last.yaml"
-    params: "-uRY32 -R01"
-    threads: 24
-    shell: f"(lastdb -P{{threads}} {{params}} {config['ref']['last_index']} {{input}}) > {{log}} 2>&1"
+localrules: tandem_genotypes_absolute_count, tandem_genotypes_plot, tandem_repeat_coverage_dropouts
 
 
 rule last_align:
