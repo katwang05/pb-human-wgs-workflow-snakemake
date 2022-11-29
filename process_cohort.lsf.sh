@@ -1,4 +1,5 @@
 #!/bin/bash
+#BSUB -P 100humans
 #BSUB -cwd
 #BSUB -L /bin/bash
 #BSUB -q default

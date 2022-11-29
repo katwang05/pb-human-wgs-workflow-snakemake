@@ -257,17 +257,18 @@ The following configuration files should not be modified unless you're confident
 We have provided sample submission scripts for three different schedulers (SLURM, SGE, LSF) as well as a local execution option. The following files **may need to be edited** based on the specifics of your HPC cluster. Additional flags may be necessary for job submission and you may need to talk to your HPC administrator if the example scripts aren’t working.
 
 - `process_smrtcells.(slurm|sge|lsf|local).sh`
-- `process_sample.(slurm|sge|lsf|local).sh`]
+- `process_sample.(slurm|sge|lsf|local).sh`
 - `process_cohort.(slurm|sge|lsf|local).sh`
 - `profiles/(slurm|sge|lsf|local)/config.yaml` # snakemake configuration [profiles](https://snakemake.readthedocs.io/en/stable/executing/cli.html#profiles)
 - `rules/sample_deepvariant.smk` # GPU and singularity constraints specified within rules
-- `variables.env` # environment variables such as TMPDIR and cluster partition
+- `variables.env` # environment variables such as TMPDIR, cluster partition, and cluster account
 
 > **WARNING**:
 >
 > - We recommend at least 80 cores and 1TB RAM for local execution.  Local execution will use all available cores.
 > - Job scripts and configuration for SGE and LSF schedulers are included as a courtesy, but are not regularly tested or maintained.
 > - Unintential or misinformed changes to these files may prevent the workflows from running properly.
+> - If a cluster "account" is required for proper billing, change the account value from `100humans` in `variables.env` and in the relevant `*.(slurm|sge|lsf|local).sh` files.
 
 [Back to top](#TOP)
 
