@@ -282,7 +282,7 @@ First, create a conda environment with the required packages. This environment o
 # create conda environment
 conda install mamba -n base -c conda-forge
 conda activate base
-mamba create -c conda-forge -c bioconda -n pb-human-wgs snakemake=6.15.3 pysam=0.16.0.1 python=3
+mamba create -c conda-forge -c bioconda -n pb-human-wgs snakemake=6.15.3 tabulate=0.8.10 pysam=0.16.0.1 python=3
 ```
 
 To run the workflows on a cluster that uses the Slurm job scheduler, use the following commands. Users of SGE, LSF, or related job management systems will need to use appropriate job submission execution and flags.
