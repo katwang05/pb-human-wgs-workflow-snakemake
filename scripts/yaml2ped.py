@@ -17,8 +17,8 @@ Family_ID = cohortid
 Individual_ID
 
 # assumed that maternal_id is listed first in parents
-Paternal_ID - '.' for unknown
-Maternal_ID - '.' for unknown
+Paternal_ID - '0' for unknown
+Maternal_ID - '0' for unknown
 
 Sex - '1'=male; '2'=female; '.''=unknown
 Phenotype - '1'=unaffected, '2'=affected
@@ -59,8 +59,8 @@ def parse_yaml(args):
                     mat_id = cohort[affectedstatus][individual]['parents'][0]
                     pat_id = cohort[affectedstatus][individual]['parents'][1]
                 else:
-                    mat_id = '.'
-                    pat_id = '.'
+                    mat_id = '0'
+                    pat_id = '0'
                 row = {
                     'Family_ID': args.cohortid,
                     'Individual_ID': cohort[affectedstatus][individual]['id'],
