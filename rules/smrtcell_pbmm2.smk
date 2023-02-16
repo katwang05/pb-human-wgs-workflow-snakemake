@@ -14,7 +14,7 @@ rule pbmm2_align_ubam:
     params:
         sample = lambda wildcards: wildcards.sample,
         preset = "CCS",
-        extra = "--sort --unmapped -c 0 -y 70",
+        extra = "--sort --unmapped",
         loglevel = "INFO"
     threads: 24
     conda: "envs/pbmm2.yaml"
@@ -44,7 +44,7 @@ rule pbmm2_align_fastq:
     params:
         sample = lambda wildcards: wildcards.sample,
         preset = "CCS",
-        extra = "--sort --unmapped -c 0 -y 70",
+        extra = "--sort --unmapped",
         loglevel = "INFO"
     threads: 24
     conda: "envs/pbmm2.yaml"
