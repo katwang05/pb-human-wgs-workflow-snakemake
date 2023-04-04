@@ -87,9 +87,9 @@ if 'whatshap' in config['sample_targets']:
 include: 'rules/sample_5mc_cpg_pileup.smk'
 if '5mc_cpg_pileup' in config['sample_targets']:
     if check_header_for_primrose(abams):
-        targets.extend([f"samples/{sample}/5mc_cpg_pileup/{sample}.{ref}.{infix}.denovo.{suffix}"
+        targets.extend([f"samples/{sample}/5mc_cpg_pileup/{sample}.{ref}.{infix}.{suffix}"
                         for infix in ['combined', 'hap1', 'hap2']
-                        for suffix in ['bed', 'bw', 'mincov10.bed', 'mincov10.bw']])
+                        for suffix in ['bed', 'bw']])
     else:
         print(f"Warning: {sample} has no aBAMs that have been processed with primrose. Skipping 5mc_cpg_pileup.")
 
