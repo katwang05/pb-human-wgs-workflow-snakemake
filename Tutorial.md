@@ -437,9 +437,7 @@ The following are some of the key output files from these workflows.
   - `hifiasm/*.asm.GRCh38.htsbox.vcf.gz` and `.tbi`
     - Variants called after aligned assembly to the reference + associated index file (.tbi)
 - **CpG/5mC Scores**
-  - `5mc_cpg_pileup/*.denovo.bed` and `5mc_cpg_pileup/*.denovo.bw`
-    - Bed and bigwig files for the complete read set and each haplotype showing methylation probabilities for CG sites with a minimum coverage of 4 (default)
-  - `5mc_cpg_pileup/*.denovo.mincov10.bed` and `5mc_cpg_pileup/*.denovo.mincov10.bw`
+  - `5mc_cpg_pileup/*.bed` and `5mc_cpg_pileup/*.bw`
     - Bed and bigwig files for the complete read set and each haplotype showing methylation probabilities for CG sites with a minimum coverage of 10
 
 ### Key outputs in `cohorts/`
