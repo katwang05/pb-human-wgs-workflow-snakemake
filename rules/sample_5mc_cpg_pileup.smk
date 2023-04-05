@@ -15,7 +15,7 @@ rule cpg_pileup:
         model = "pileup_calling_model.v1.tflite",
         prefix = f"samples/{sample}/5mc_cpg_pileup/{sample}.{ref}"
     threads: 8
-    container: "docker://quay.io/pacbio/pb-cpg-tools:v2.1.0"
+    container: "docker://quay.io/pacbio/pb-cpg-tools:v2.1.1"
     shell:
         """
         (aligned_bam_to_cpg_scores \
