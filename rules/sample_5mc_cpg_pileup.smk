@@ -4,24 +4,26 @@ rule cpg_pileup:
         bai = f"samples/{sample}/whatshap/{sample}.{ref}.deepvariant.haplotagged.bam.bai",
         reference = config['ref']['fasta'],
     output:
-        [f"samples/{sample}/5mc_cpg_pileup/{sample}.{ref}.{infix}.denovo.{suffix}"
+        [f"samples/{sample}/5mc_cpg_pileup/{sample}.{ref}.{infix}.{suffix}"
          for infix in ['combined', 'hap1', 'hap2']
-         for suffix in ['bed', 'bw', 'mincov10.bed', 'mincov10.bw']]
+         for suffix in ['bed', 'bw']]
     log: f"samples/{sample}/logs/5mc_cpg_pileup/{sample}.{ref}.log"
     benchmark: f"samples/{sample}/benchmarks/5mc_cpg_pileup/{sample}.{ref}.tsv"
     params:
         min_mapq = 1,
         min_coverage = 10,
-        pileup_mode = "model",
-        model_dir = "workflow/scripts/pb-CpG-tools/pileup_calling_model",
-        modsites = "denovo",
+        model = "pileup_calling_model.v1.tflite",
         prefix = f"samples/{sample}/5mc_cpg_pileup/{sample}.{ref}"
-    threads: 48
-    conda: "envs/pb-cpg-tools.yaml"
+    threads: 8
+    container: "docker://quay.io/pacbio/pb-cpg-tools:v2.1.0"
     shell:
         """
-        (python3 workflow/scripts/pb-CpG-tools/aligned_bam_to_cpg_scores.py \
-            -b {input.bam} -f {input.reference} -o {params.prefix} \
-            -t {threads} -q {params.min_mapq} -m {params.modsites} \
-            -p {params.pileup_mode} -d {params.model_dir} -c {params.min_coverage}) > {log} 2>&1
+        (aligned_bam_to_cpg_scores \
+			--threads {threads} \
+			--bam {input.bam} \
+			--ref {input.reference} \
+			--output-prefix {params.prefix} \
+			--min-mapq {params.min_mapq} \
+			--min-coverage {params.min_coverage} \
+			--model $PILEUP_MODEL_DIR/{params.model} > {log} 2>&1)
         """
