@@ -7,15 +7,16 @@ configfile: "workflow/reference.yaml"         # reference information
 configfile: "workflow/config.yaml"            # general configuration
 shell.prefix(f"set -o pipefail; umask 002; ")  # set g+w
 
-def check_header_for_primrose(bams):
+def check_header_for_basemod_tools(bams):
     """
-    Check if any BAM in list of BAMs was processed with primrose
+    Check if any BAM in list of BAMs was processed with basemod tools
     """
+    basemod_tools = {'primrose', 'jasmine'}
     for bam in bams:
         with pysam.AlignmentFile(bam, "rb", check_sq=False) as bamfile:
-            # BAMs with basemods should have `primrose` in header
-            return 'primrose' in [_['ID'] for _ in bamfile.header.as_dict()['PG']]
-    # if no BAMs have primrose in header
+            # BAMs processed with basemod tools will have header PG ID
+            if {_['ID'] for _ in bamfile.header.as_dict()['PG']} & basemod_tools):
+                return True
     return False
 
 # sample will be provided at command line with `--config sample=$SAMPLE`
@@ -86,12 +87,12 @@ if 'whatshap' in config['sample_targets']:
 # generate phased 5mC CpG pileups (if any aBAM has been processed with primrose.)
 include: 'rules/sample_5mc_cpg_pileup.smk'
 if '5mc_cpg_pileup' in config['sample_targets']:
-    if check_header_for_primrose(abams):
+    if check_header_for_basemod_tools(abams):
         targets.extend([f"samples/{sample}/5mc_cpg_pileup/{sample}.{ref}.{infix}.{suffix}"
                         for infix in ['combined', 'hap1', 'hap2']
                         for suffix in ['bed', 'bw']])
     else:
-        print(f"Warning: {sample} has no aBAMs that have been processed with primrose. Skipping 5mc_cpg_pileup.")
+        print(f"Warning: {sample} has no aBAMs that have been processed with basemod tools. Skipping 5mc_cpg_pileup.")
 
 # genotype STRs
 include: 'rules/sample_tandem_genotypes.smk'
