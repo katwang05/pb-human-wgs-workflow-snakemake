@@ -26,21 +26,6 @@ def get_samples(cohortyaml=config['cohort_yaml'], cohort_id=config['cohort']):
                 samples.append(c[affectedstatus][individual]['id'])
     return [str(x) for x in samples]
 
-def get_paired_samples(cohortyaml=config['cohort_yaml'], cohort_id=config['cohort']):
-    """Find all paired samples associated with cohort."""
-    with open(cohortyaml, 'r') as yamlfile:
-        cohort_list = yaml.load(yamlfile, Loader = yaml.FullLoader)
-    for c in cohort_list:
-        if c['id'] == cohort_id:
-            break
-    else:
-        sys.exit(f"Cohort {cohort_id} not found in {cohortyaml}.")
-    paired_samples = []
-    if 'paired_samples' in c:
-        for pair in c['paired_samples']:
-            paired_samples.append((pair['tumor'], pair['normal']))
-    return paired_samples
-
 def get_trios(cohortyaml=config['cohort_yaml'], cohort_id=config['cohort']):
     """Find all trios associated with cohort."""
     with open(cohortyaml, 'r') as yamlfile:
@@ -68,18 +53,14 @@ print(f"Processing cohort {cohort} with reference {ref}.")
 
 # find all samples in cohort
 samples = get_samples()
-paired_samples = get_paired_samples()
 
 if len(samples) == 0:
     print(f"No samples in {cohort}.") and exit
-elif len(paired_samples) > 0:
-    paired = True
 elif len(samples) == 1:
     singleton = True
 else:
     singleton = False
-    print(f"Samples in cohort: {samples}.")
-    print(f"Paired samples in cohort: {paired_samples}.")
+print(f"Samples in cohort: {samples}.")
 
 # find all trios in cohort
 trio_dict = get_trios()
@@ -126,10 +107,6 @@ if singleton:
     svpack_input = f"samples/{samples[0]}/pbsv/{samples[0]}.{ref}.pbsv.vcf.gz"
     gvcf_list = []   # unused
     svsig_dict = []  # unused
-elif paired:
-    # new code block for paired samples
-    strelka2_input = [f"pairs/{tumor}_{normal}.strelka2.vcf.gz" for tumor, normal in paired_samples]
-    # additional code as required for further processing of paired samples
 else:
     # generate joint-called VCFs
     slivar_input = f"cohorts/{cohort}/whatshap/{cohort}.{ref}.deepvariant.glnexus.phased.vcf.gz"
@@ -143,10 +120,6 @@ else:
 
 # build a list of targets
 targets = []
-
-paired_vcf_files = [f"pairs/{tumor}_{normal}.strelka2.vcf.gz" for tumor, normal in paired_samples]
-targets.extend(paired_vcf_files)
-
 include: 'rules/cohort_common.smk'
 
 # assemble with hifiasm
@@ -162,8 +135,6 @@ if 'trio_assembly' in config['cohort_targets']:
                 for suffix in ['bam', 'bam.bai']
                 for trio in trio_dict.keys()])
 
-include: 'rules/cohort_strelka.smk'
-    
 # generate a cohort level pbsv vcf or use singleton vcf
 include: 'rules/cohort_pbsv.smk'
 if 'pbsv_vcf' in config['cohort_targets']:
