@@ -40,8 +40,9 @@ def get_pairs(cohortyaml=config['cohort_yaml'], cohort_id=config['cohort']):
         if affectedstatus in c:
             for individual in range(len(c[affectedstatus])):
                 if ('pair' in c[affectedstatus][individual]) \
-                        and (len(c[affectedstatus][individual]['pair']) == 1):
-                    pairs_dict[c[affectedstatus][individual]['id']]['pair'] = c[affectedstatus][individual]['pair'][0]
+                        and (len(c[affectedstatus][individual]['pair']) == 2):
+                    pairs_dict[c[affectedstatus][individual]['id']]['pair1'] = c[affectedstatus][individual]['pair'][0]
+                    pairs_dict[c[affectedstatus][individual]['id']]['pair2'] = c[affectedstatus][individual]['pair'][1]
     return pairs_dict
 
 
