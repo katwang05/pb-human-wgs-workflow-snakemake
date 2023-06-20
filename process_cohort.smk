@@ -26,6 +26,25 @@ def get_samples(cohortyaml=config['cohort_yaml'], cohort_id=config['cohort']):
                 samples.append(c[affectedstatus][individual]['id'])
     return [str(x) for x in samples]
 
+def get_pairs(cohortyaml=config['cohort_yaml'], cohort_id=config['cohort']):
+    """Find all trios associated with cohort."""
+    with open(cohortyaml, 'r') as yamlfile:
+        cohort_list = yaml.load(yamlfile, Loader = yaml.FullLoader)
+    for c in cohort_list:
+        if c['id'] == cohort_id:
+            break
+    else:
+        sys.exit(f"Cohort {cohort_id} not found in {cohortyaml}.")
+    pairs_dict = defaultdict(dict)
+    for affectedstatus in ['affecteds', 'unaffecteds']:
+        if affectedstatus in c:
+            for individual in range(len(c[affectedstatus])):
+                if ('pair' in c[affectedstatus][individual]) \
+                        and (len(c[affectedstatus][individual]['pair']) == 1):
+                    pairs_dict[c[affectedstatus][individual]['id']]['pair'] = c[affectedstatus][individual]['pair'][0]
+    return pairs_dict
+
+
 def get_trios(cohortyaml=config['cohort_yaml'], cohort_id=config['cohort']):
     """Find all trios associated with cohort."""
     with open(cohortyaml, 'r') as yamlfile:
@@ -53,9 +72,12 @@ print(f"Processing cohort {cohort} with reference {ref}.")
 
 # find all samples in cohort
 samples = get_samples()
+paired_samples = get_pairs()
 
 if len(samples) == 0:
     print(f"No samples in {cohort}.") and exit
+elif len(paired_samples) > 0:
+    paired = True
 elif len(samples) == 1:
     singleton = True
 else:
@@ -158,6 +180,11 @@ if 'slivar' in config['cohort_targets']:
                     for infix in ['slivar', 'slivar.compound-hets']
                     for suffix in ['vcf.gz', 'vcf.gz.tbi', 'tsv']])
 
+include: 'rules/cohort_pairs.smk'
+if 'pairs_assembly' in config['cohort_targets']:
+    targets.extend([f"cohorts/{cohort}/pairs/{cohort}.{ref}.vcf.difference.{suffix}"
+                    for suffix in ['vcf.gz', 'vcf.gz.tbi', 'tsv']
+                    for pair in pairs_dict.keys()])
 
 ruleorder: split_glnexus_vcf > whatshap_phase > whatshap_bcftools_concat > bcftools_bcf2vcf > bgzip_vcf
 localrules: all, md5sum
