@@ -183,8 +183,8 @@ if 'slivar' in config['cohort_targets']:
 
 include: 'rules/cohort_pairs.smk'
 if 'pairs_assembly' in config['cohort_targets']:
-    targets.extend([f"cohorts/{cohort}/pairs/{cohort}.{ref}.vcf.difference.{suffix}"
-                    for suffix in ['vcf.gz', 'vcf.gz.tbi', 'tsv']
+    targets.extend([f"{infix}.cohorts/{cohort}.pairs.{ref}.diff.vcf.gz"
+                    for infix in ['slivar', 'svpack']
                     for pair in pairs_dict.keys()])
 
 ruleorder: split_glnexus_vcf > whatshap_phase > whatshap_bcftools_concat > bcftools_bcf2vcf > bgzip_vcf
